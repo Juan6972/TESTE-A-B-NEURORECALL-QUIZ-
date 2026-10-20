@@ -133,23 +133,33 @@ test('quiz shows centered status sequence at 0/2/4s and reveals only at 5s', () 
   assert.ok(p.element('quiz-message').classes.has('quiz-warning'));
 });
 
-test('video playback, elapsed time and old preview URL cannot bypass the quiz', () => {
+test('initial quiz is ready immediately and wall time or preview URL cannot reveal the offer', () => {
   const p = page('?showoffer=1');
-  for (const time of [2504.99, 2505, 3600, 0]) p.videoTime(time);
+  assert.equal(p.element('quiz-counter').textContent, 'Pergunta 1 de 8');
+  assert.equal(p.element('quiz-options').children.length, 2);
   p.advance(60 * 60 * 1000);
   assert.equal(p.element('oferta-escondida').hidden, true);
   assert.equal(p.element('quiz-panel').hidden, false);
 });
 
-test('VSL cannot reveal during loading or reset the quiz result', () => {
+test('VSL reveals exactly at the pitch threshold while keeping the quiz visible', () => {
+  const p = page();
+  p.videoTime(2504.99);
+  assert.equal(p.element('oferta-escondida').hidden, true);
+  p.videoTime(2505);
+  assert.equal(p.element('oferta-escondida').hidden, false);
+  assert.equal(p.element('quiz-panel').hidden, false);
+});
+
+test('VSL and quiz loading can reveal concurrently without resetting the result', () => {
   const p = page();
   p.completeQuiz();
   p.advance(2000);
   const warning = p.element('quiz-message').textContent;
   p.videoTime(2505);
-  assert.equal(p.element('oferta-escondida').hidden, true);
+  assert.equal(p.element('oferta-escondida').hidden, false);
   p.advance(2999);
-  assert.equal(p.element('oferta-escondida').hidden, true);
+  assert.equal(p.element('oferta-escondida').hidden, false);
   p.advance(1);
   assert.equal(p.element('oferta-escondida').hidden, false);
   assert.equal(p.element('quiz-message').textContent, warning);

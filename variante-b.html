@@ -103,6 +103,7 @@
 
 [hidden] { display: none !important; }
 .quiz-section { max-width: 760px; margin: 32px auto; padding: 24px 18px; border: 1px solid #3b3b40; border-radius: 12px; background: #19191d; color: #f5f5f5; }
+#quiz-section { display: block; visibility: visible; opacity: 1; }
 .quiz-kicker { margin: 0 0 8px; color: #ffcc00; font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
 .quiz-section h2 { margin: 0 0 12px; font-size: clamp(23px,3vw,30px); font-weight: 800; line-height: 1.2; }
 .quiz-intro, .quiz-note { margin: 0 0 20px; color: #c4c4c4; font-size: 16px; line-height: 1.5; }
@@ -141,7 +142,7 @@
 <div class="header-actions"><button class="listen-button"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 14v-3a9 9 0 0 1 18 0v3M3 13h4v8H5a2 2 0 0 1-2-2zm18 0h-4v8h2a2 2 0 0 0 2-2z"/></svg><span>Listen</span></button><button class="signin-button">Sign in</button></div>
 </div></header>
 <main id="top">
-<section class="watch-section" lang="en-US">
+<section id="vsl-section" class="watch-section" lang="en-US">
 <header class="article-header"><div class="article-kicker">REPORT:</div>
 <h1>The Real Reason Bill Gates Is Investing Millions In Asia: He Discovered The "Sharp Mind Protocol"</h1>
 <p>Research connected to the University of Tokyo reveals a 13-second homemade ritual that may clear brain fog in days and support short-term memory — without relying on drugs alone.</p></header>
@@ -154,13 +155,13 @@
 <button class="vsl-resume-restart" type="button" data-restart="true" disabled>↻ Start over</button>
 </div></div><p id="video-status" class="vsl-resume-status" role="status"></p>
 </div></div></section>
-<section class="quiz-section" aria-labelledby="quiz-heading">
+<section id="quiz-section" class="quiz-section" aria-labelledby="quiz-heading">
 <p class="quiz-kicker">Memória e clareza mental</p>
 <h2 id="quiz-heading">Responda a 8 perguntas rápidas</h2>
 <p class="quiz-intro">Escolha a opção que melhor descreve a sua situação. No final, poderá conhecer a oferta sem esperar pelo fim do vídeo.</p>
-<p id="quiz-counter" class="quiz-counter"></p>
+<p id="quiz-counter" class="quiz-counter">Pergunta 1 de 8</p>
 <progress id="quiz-progress" class="quiz-progress" value="0" max="8" aria-label="Perguntas respondidas"></progress>
-<div id="quiz-panel"><h3 id="quiz-question" class="quiz-question" tabindex="-1"></h3><div id="quiz-options" class="quiz-options" role="group" aria-labelledby="quiz-question"></div></div>
+<div id="quiz-panel"><h3 id="quiz-question" class="quiz-question" tabindex="-1">Para quem está a procurar ajuda em relação à memória e clareza mental?</h3><div id="quiz-options" class="quiz-options" role="group" aria-labelledby="quiz-question"><button type="button" class="quiz-option">Para mim mesmo(a)</button><button type="button" class="quiz-option">Para um familiar de quem cuido</button></div></div>
 <div id="quiz-result" class="quiz-result" tabindex="-1" hidden><span id="quiz-spinner" class="quiz-spinner" aria-hidden="true"></span><p id="quiz-message" role="status" aria-live="polite" aria-atomic="true"></p><p id="quiz-success" class="quiz-success" role="status" aria-live="polite" aria-atomic="true" hidden></p></div>
 <p class="quiz-note">Questionário informativo, sem diagnóstico médico. A lógica deste questionário não guarda nem envia as suas respostas. A página mantém os serviços de analytics existentes.</p>
 <noscript><p>Ative o JavaScript para responder ao questionário e desbloquear a oferta.</p></noscript>
@@ -193,6 +194,7 @@
  <div class="payment-methods" aria-label="Accepted payment methods"><span>VISA</span><span>MC</span><span>DISCOVER</span><span>AMEX</span></div>
  </div></article></div></div></section></main></div>
 <script>
+const PITCH_SECONDS = 2505; // VSL: 41:45. O quiz fica visível desde a primeira renderização.
 const QUIZ_NOTICE_DELAY_MS = 2000;
 const QUIZ_SUCCESS_DELAY_MS = 4000;
 const QUIZ_REVEAL_DELAY_MS = 5000;
@@ -344,7 +346,7 @@ function saveProgress(time, duration) {
     timers.add(id);
   }
   function revealOffer() {
-    if (!quizFinished || revealed) return;
+    if (revealed) return;
     revealed = true;
     offer.classList.add('is-visible');
     offer.removeAttribute('hidden');
@@ -400,7 +402,7 @@ function saveProgress(time, duration) {
       success.textContent = '✅ A sua apresentação está pronta.';
       success.hidden = false;
     }, QUIZ_SUCCESS_DELAY_MS);
-    // Only quiz completion unlocks the offer; video progress never bypasses it.
+    // The quiz unlocks the offer independently of the video clock.
     later(() => {
       revealOffer();
       result.setAttribute('aria-busy', 'false');
@@ -408,6 +410,9 @@ function saveProgress(time, duration) {
   }
   showQuestion();
 
+  function checkVideoTime(time) {
+    if (Number.isFinite(time) && time >= PITCH_SECONDS) revealOffer();
+  }
   let saved = readProgress();
   let waitingForChoice = Boolean(saved);
   let ready = false;
@@ -444,9 +449,13 @@ function saveProgress(time, duration) {
     if (waitingForChoice || ended) return;
     const time = event.detail?.time;
     if (!Number.isFinite(time)) return;
+    checkVideoTime(time);
     if (Number.isFinite(player.duration) && player.duration > 0 && time >= player.duration - 5) clearProgress();
     else if (Date.now() - lastSave >= 2000) { saveProgress(time, player.duration); lastSave = Date.now(); }
   });
+  const videoClock = setInterval(() => {
+    if (ready && !waitingForChoice && !ended) checkVideoTime(player.currentTime);
+  }, 1000);
   player.addEventListener('video:play', () => { if (waitingForChoice) player.pause(); else ended = false; });
   player.addEventListener('video:ended', () => { ended = true; clearProgress(); });
   resumeButtons.forEach(button => button.addEventListener('click', async () => {
@@ -463,6 +472,7 @@ function saveProgress(time, duration) {
       player.unmute();
       await player.play();
       if (player.paused) throw new Error('Playback did not start');
+      checkVideoTime(time);
       saved = null;
       overlay.hidden = true;
     } catch {
@@ -476,7 +486,7 @@ function saveProgress(time, duration) {
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persist(); });
   window.addEventListener('pagehide', event => {
     persist();
-    if (!event.persisted) timers.forEach(clearTimeout);
+    if (!event.persisted) { clearInterval(videoClock); timers.forEach(clearTimeout); }
   });
   window.addEventListener('pageshow', event => {
     if (!event.persisted) return;
