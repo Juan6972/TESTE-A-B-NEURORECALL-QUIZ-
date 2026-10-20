@@ -17,7 +17,7 @@ npm run typecheck
 node --test tests/*.test.mjs
 ```
 
-The offer is released at 41:45 (2,505 seconds), retaining the existing returning-visit timer and saved-video-progress behavior. Use `?showoffer=1` to preview the offer without waiting. The offer's JavaScript, CSS and product images load only after release. React is a separate cached production chunk. Above-the-fold video loading and tracking initialization remain unchanged.
+In Variant A, the offer is released when the video reaches 41:45 (2,505 seconds). Returning viewers can resume saved video progress, but elapsed visit time, saved progress alone and URL parameters do not unlock the offer. Variant B unlocks its offer after all eight quiz answers and the 5.5-second completion sequence. The offer's JavaScript, CSS and product images in Variant A load only after release. React is a separate cached production chunk. Above-the-fold video loading and tracking initialization remain unchanged.
 
 Product images use responsive AVIF with WebP fallback, native lazy loading and explicit dimensions. Original artwork is retained in `assets/source-images/`, outside the public build. To regenerate the 256/512/768-pixel variants, install Python Pillow with AVIF/WebP support and run:
 

@@ -1,6 +1,5 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
 import VturbPlayer from '@/VturbPlayer';
-import { readProgress } from '@/vslProgress';
 import { captureTracking, buildCheckoutUrl } from '@/tracking';
 import {
   Headphones,
@@ -11,26 +10,7 @@ const OfferSection = lazy(() => import('@/OfferSection'));
 
 const navItems = ['CNN Headlines', 'CNN Shorts', 'TV Shows A-Z', 'CNN 10', 'TV Schedule'];
 
-const OFFER_DELAY_MS = 2505000;
-const OFFER_START_KEY = 'neurorecall_start_time';
-
-function getRemainingDelay(): number {
-  const now = Date.now();
-  try {
-    const stored = localStorage.getItem(OFFER_START_KEY);
-    if (stored) {
-      const start = Number(stored);
-      if (Number.isFinite(start) && start > 0 && start <= now) {
-        const elapsed = now - start;
-        return Math.max(0, OFFER_DELAY_MS - elapsed);
-      }
-    }
-    localStorage.setItem(OFFER_START_KEY, String(now));
-  } catch {
-    // Keep the original visit timer working even if storage is unavailable.
-  }
-  return OFFER_DELAY_MS;
-}
+const PITCH_SECONDS = 2505; // 41:45 on the video clock, not elapsed visit time.
 
 function CnnMark() {
   return <span className="cnn-mark" aria-label="CNN">CNN</span>;
@@ -39,7 +19,7 @@ function CnnMark() {
 function App() {
   const [offerVisible, setOfferVisible] = useState(false);
   const revealOfferAtTime = useCallback((time: number) => {
-    if (time >= OFFER_DELAY_MS / 1000) setOfferVisible(true);
+    if (Number.isFinite(time) && time >= PITCH_SECONDS) setOfferVisible(true);
   }, []);
   const tracking = useMemo(() => captureTracking(), []);
 
@@ -48,30 +28,6 @@ function App() {
     six: buildCheckoutUrl('https://www.jvzoo.com/b/118161/450941/99?aid=3640757', tracking),
     three: buildCheckoutUrl('https://www.jvzoo.com/b/118161/450939/99?aid=3640757', tracking),
   }), [tracking]);
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('showoffer') === '1') {
-      setOfferVisible(true);
-      return;
-    }
-
-    const savedProgress = readProgress();
-    if (savedProgress && savedProgress.time >= OFFER_DELAY_MS / 1000) {
-      setOfferVisible(true);
-      return;
-    }
-
-    const remaining = getRemainingDelay();
-
-    if (remaining <= 0) {
-      setOfferVisible(true);
-      return;
-    }
-
-    const revealTimer = window.setTimeout(() => setOfferVisible(true), remaining);
-    return () => window.clearTimeout(revealTimer);
-  }, []);
 
   return (
     <div className="site-shell">
@@ -101,7 +57,7 @@ function App() {
           </div>
         </section>
 
-        <div id="oferta-escondida" className={`offer-section${offerVisible ? ' is-visible' : ''}`} aria-hidden={!offerVisible}>
+        <div id="oferta-escondida" className={`offer-section${offerVisible ? ' is-visible' : ''}`} hidden={!offerVisible} aria-hidden={!offerVisible}>
           {offerVisible && <Suspense fallback={null}><OfferSection checkoutLinks={checkoutLinks} /></Suspense>}
         </div>
       </main>
