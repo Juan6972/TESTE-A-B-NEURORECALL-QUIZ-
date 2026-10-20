@@ -5,10 +5,10 @@ import vm from 'node:vm';
 
 const html = readFileSync(new URL('../variante-b.html', import.meta.url), 'utf8');
 const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
-  .map(match => match[1]).find(source => source.includes('const PITCH_SECONDS'));
+  .map(match => match[1]).find(source => source.includes('const QUIZ_NOTICE_DELAY_MS'));
 assert.ok(script, 'The standalone HTML must include its quiz script');
 
-function page() {
+function page(search = '') {
   class Element {
     children = [];
     listeners = new Map();
@@ -41,6 +41,7 @@ function page() {
   };
   element('oferta-escondida').hidden = true;
   element('quiz-result').hidden = true;
+  element('quiz-success').hidden = true;
   const player = new Element();
   player.parentElement = new Element();
   const timers = new Map();
@@ -59,7 +60,7 @@ function page() {
     window: { addEventListener() {} },
     localStorage: storage,
     sessionStorage: storage,
-    location: { search: '' },
+    location: { search },
     URL, URLSearchParams,
     setTimeout(callback, delay) {
       const id = nextId++;
@@ -99,7 +100,7 @@ function page() {
   return { element, advance, completeQuiz, videoTime };
 }
 
-test('quiz reveals at exactly 5000ms without playing the VSL', () => {
+test('quiz shows centered status sequence at 0/2/4s and reveals only at 5s', () => {
   const p = page();
   p.advance(60 * 60 * 1000);
   assert.equal(p.element('oferta-escondida').hidden, true);
@@ -107,13 +108,23 @@ test('quiz reveals at exactly 5000ms without playing the VSL', () => {
   assert.equal(p.element('quiz-panel').hidden, true);
   assert.equal(p.element('quiz-result').hidden, false);
   assert.equal(p.element('quiz-spinner').hidden, false);
-  p.advance(2999);
+  assert.equal(p.element('quiz-message').textContent, 'A analisar as suas respostas...');
+  assert.equal(p.element('quiz-success').hidden, true);
+  p.advance(1999);
   assert.equal(p.element('quiz-spinner').hidden, false);
   p.advance(1);
   assert.equal(p.element('quiz-spinner').hidden, true);
   assert.ok(p.element('quiz-message').classes.has('quiz-warning'));
+  assert.equal(p.element('quiz-message').textContent, '⚠️ Respostas recebidas.');
   assert.equal(p.element('oferta-escondida').hidden, true);
   p.advance(1999);
+  assert.equal(p.element('quiz-success').hidden, true);
+  assert.equal(p.element('oferta-escondida').hidden, true);
+  p.advance(1);
+  assert.equal(p.element('quiz-success').hidden, false);
+  assert.equal(p.element('quiz-success').textContent, '✅ A sua apresentação está pronta.');
+  assert.equal(p.element('quiz-message').textContent, '⚠️ Respostas recebidas.');
+  p.advance(999);
   assert.equal(p.element('oferta-escondida').hidden, true);
   p.advance(1);
   assert.equal(p.element('oferta-escondida').hidden, false);
@@ -122,24 +133,24 @@ test('quiz reveals at exactly 5000ms without playing the VSL', () => {
   assert.ok(p.element('quiz-message').classes.has('quiz-warning'));
 });
 
-test('VSL reveals independently at the pitch threshold and never hides again', () => {
-  const p = page();
-  p.videoTime(2504.99);
+test('video playback, elapsed time and old preview URL cannot bypass the quiz', () => {
+  const p = page('?showoffer=1');
+  for (const time of [2504.99, 2505, 3600, 0]) p.videoTime(time);
+  p.advance(60 * 60 * 1000);
   assert.equal(p.element('oferta-escondida').hidden, true);
-  p.videoTime(2505);
-  assert.equal(p.element('oferta-escondida').hidden, false);
-  p.videoTime(0);
-  assert.equal(p.element('oferta-escondida').hidden, false);
   assert.equal(p.element('quiz-panel').hidden, false);
 });
 
-test('VSL and quiz completion can race without resetting the offer or warning', () => {
+test('VSL cannot reveal during loading or reset the quiz result', () => {
   const p = page();
   p.completeQuiz();
-  p.advance(3000);
+  p.advance(2000);
   const warning = p.element('quiz-message').textContent;
   p.videoTime(2505);
-  p.advance(2000);
+  assert.equal(p.element('oferta-escondida').hidden, true);
+  p.advance(2999);
+  assert.equal(p.element('oferta-escondida').hidden, true);
+  p.advance(1);
   assert.equal(p.element('oferta-escondida').hidden, false);
   assert.equal(p.element('quiz-message').textContent, warning);
   assert.equal(p.element('quiz-result').attributes.get('aria-busy'), 'false');

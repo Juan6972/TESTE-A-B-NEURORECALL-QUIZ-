@@ -120,10 +120,11 @@
 .quiz-option[aria-disabled=true] { cursor: wait; }
 .quiz-option:focus-visible, .offer-button:focus-visible { outline: 3px solid #ffcc00; outline-offset: 4px; }
 .quiz-question:focus, .quiz-result:focus { outline: 2px solid #777; outline-offset: 6px; }
-.quiz-result { padding: 20px 0 4px; }
+.quiz-result { padding: 20px 0 4px; text-align: center; }
 .quiz-result p { margin: 16px 0 0; font-size: 19px; line-height: 1.55; }
-.quiz-spinner { display: block; width: 40px; height: 40px; border: 4px solid #4a4a52; border-top-color: #ffcc00; border-radius: 50%; animation: quiz-spin .8s linear infinite; }
+.quiz-spinner { display: block; width: 40px; height: 40px; margin: 0 auto; border: 4px solid #4a4a52; border-top-color: #ffcc00; border-radius: 50%; animation: quiz-spin .8s linear infinite; }
 .quiz-result .quiz-warning { padding: 18px; border: 1px solid #d34b50; border-radius: 9px; color: #ff989c; background: #301619; font-weight: 700; }
+.quiz-result .quiz-success { padding: 18px; border: 1px solid #39a868; border-radius: 9px; color: #8ee8ae; background: #102b1b; font-weight: 700; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 @keyframes quiz-spin { to { transform: rotate(360deg); } }
 @media (min-width: 781px) { .quiz-section { padding: 32px; margin: 40px auto; } }
@@ -160,7 +161,7 @@
 <p id="quiz-counter" class="quiz-counter"></p>
 <progress id="quiz-progress" class="quiz-progress" value="0" max="8" aria-label="Perguntas respondidas"></progress>
 <div id="quiz-panel"><h3 id="quiz-question" class="quiz-question" tabindex="-1"></h3><div id="quiz-options" class="quiz-options" role="group" aria-labelledby="quiz-question"></div></div>
-<div id="quiz-result" class="quiz-result" tabindex="-1" hidden><span id="quiz-spinner" class="quiz-spinner" aria-hidden="true"></span><p id="quiz-message" role="status" aria-live="polite" aria-atomic="true"></p></div>
+<div id="quiz-result" class="quiz-result" tabindex="-1" hidden><span id="quiz-spinner" class="quiz-spinner" aria-hidden="true"></span><p id="quiz-message" role="status" aria-live="polite" aria-atomic="true"></p><p id="quiz-success" class="quiz-success" role="status" aria-live="polite" aria-atomic="true" hidden></p></div>
 <p class="quiz-note">Questionário informativo, sem diagnóstico médico. A lógica deste questionário não guarda nem envia as suas respostas. A página mantém os serviços de analytics existentes.</p>
 <noscript><p>Ative o JavaScript para responder ao questionário e desbloquear a oferta.</p></noscript>
 </section>
@@ -192,8 +193,8 @@
  <div class="payment-methods" aria-label="Accepted payment methods"><span>VISA</span><span>MC</span><span>DISCOVER</span><span>AMEX</span></div>
  </div></article></div></div></section></main></div>
 <script>
-const PITCH_SECONDS = 2505; // Ponto da VSL que liberta a oferta (41:45).
-const QUIZ_NOTICE_DELAY_MS = 3000;
+const QUIZ_NOTICE_DELAY_MS = 2000;
+const QUIZ_SUCCESS_DELAY_MS = 4000;
 const QUIZ_REVEAL_DELAY_MS = 5000;
 const TRACKING_KEY = "neurorecall_tracking";
 const TRACKING_PARAMS = [
@@ -331,6 +332,7 @@ function saveProgress(time, duration) {
   const result = document.getElementById('quiz-result');
   const spinner = document.getElementById('quiz-spinner');
   const message = document.getElementById('quiz-message');
+  const success = document.getElementById('quiz-success');
   const player = document.querySelector('vturb-smartplayer');
   let index = 0;
   let locked = false;
@@ -342,7 +344,7 @@ function saveProgress(time, duration) {
     timers.add(id);
   }
   function revealOffer() {
-    if (revealed) return;
+    if (!quizFinished || revealed) return;
     revealed = true;
     offer.classList.add('is-visible');
     offer.removeAttribute('hidden');
@@ -385,14 +387,20 @@ function saveProgress(time, duration) {
     counter.textContent = 'Questionário concluído';
     result.hidden = false;
     result.setAttribute('aria-busy', 'true');
-    message.textContent = 'A preparar a sua apresentação...';
+    spinner.hidden = false;
+    message.textContent = 'A analisar as suas respostas...';
     result.focus({ preventScroll: true });
     later(() => {
       spinner.hidden = true;
       message.classList.add('quiz-warning');
-      message.textContent = '⚠️ Atenção: este questionário não faz um diagnóstico nem determina a gravidade dos sintomas. Se nota alterações de memória, procure avaliação por um profissional de saúde.';
+      message.textContent = '⚠️ Respostas recebidas.';
+      result.setAttribute('aria-busy', 'false');
     }, QUIZ_NOTICE_DELAY_MS);
-    // Independent of the video clock, playback state and PITCH_SECONDS.
+    later(() => {
+      success.textContent = '✅ A sua apresentação está pronta.';
+      success.hidden = false;
+    }, QUIZ_SUCCESS_DELAY_MS);
+    // Only quiz completion unlocks the offer; video progress never bypasses it.
     later(() => {
       revealOffer();
       result.setAttribute('aria-busy', 'false');
@@ -400,10 +408,6 @@ function saveProgress(time, duration) {
   }
   showQuestion();
 
-  // Time is taken from the video, never from time spent on the page.
-  function checkVideoTime(time) {
-    if (Number.isFinite(time) && time >= PITCH_SECONDS) revealOffer();
-  }
   let saved = readProgress();
   let waitingForChoice = Boolean(saved);
   let ready = false;
@@ -440,14 +444,9 @@ function saveProgress(time, duration) {
     if (waitingForChoice || ended) return;
     const time = event.detail?.time;
     if (!Number.isFinite(time)) return;
-    checkVideoTime(time);
     if (Number.isFinite(player.duration) && player.duration > 0 && time >= player.duration - 5) clearProgress();
     else if (Date.now() - lastSave >= 2000) { saveProgress(time, player.duration); lastSave = Date.now(); }
   });
-  // A low-frequency fallback reads the same player clock if an event is missed.
-  const videoClock = setInterval(() => {
-    if (ready && !waitingForChoice && !ended) checkVideoTime(player.currentTime);
-  }, 1000);
   player.addEventListener('video:play', () => { if (waitingForChoice) player.pause(); else ended = false; });
   player.addEventListener('video:ended', () => { ended = true; clearProgress(); });
   resumeButtons.forEach(button => button.addEventListener('click', async () => {
@@ -464,7 +463,6 @@ function saveProgress(time, duration) {
       player.unmute();
       await player.play();
       if (player.paused) throw new Error('Playback did not start');
-      checkVideoTime(time);
       saved = null;
       overlay.hidden = true;
     } catch {
@@ -478,7 +476,7 @@ function saveProgress(time, duration) {
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persist(); });
   window.addEventListener('pagehide', event => {
     persist();
-    if (!event.persisted) { clearInterval(videoClock); timers.forEach(clearTimeout); }
+    if (!event.persisted) timers.forEach(clearTimeout);
   });
   window.addEventListener('pageshow', event => {
     if (!event.persisted) return;
@@ -491,8 +489,6 @@ function saveProgress(time, duration) {
   sdk.async = true;
   sdk.addEventListener('error', () => { resumeError.textContent = 'The video could not load. Please refresh the page to try again.'; });
   document.head.append(sdk);
-  // Preserve the explicit design-preview switch; never use it in ad URLs.
-  if (new URLSearchParams(location.search).get('showoffer') === '1') revealOffer();
   const tracking = captureTracking();
   document.querySelectorAll('.offer-button').forEach(link => {
     link.href = buildCheckoutUrl(link.href, tracking);
