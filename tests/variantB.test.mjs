@@ -8,7 +8,7 @@ const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
   .map(match => match[1]).find(source => source.includes('const QUIZ_NOTICE_DELAY_MS'));
 assert.ok(script, 'The standalone HTML must include its quiz script');
 
-function page(search = '') {
+function page(search = '', reducedMotion = false) {
   class Element {
     children = [];
     listeners = new Map();
@@ -31,7 +31,8 @@ function page(search = '') {
     emit(name, event = {}) { for (const fn of this.listeners.get(name) || []) fn(event); }
     append(child) { this.children.push(child); }
     replaceChildren() { this.children = []; }
-    focus() {}
+    focus() { this.focused = true; }
+    scrollIntoView(options) { this.scrollOptions = options; }
     querySelectorAll() { return []; }
   }
   const elements = new Map();
@@ -41,6 +42,7 @@ function page(search = '') {
   };
   element('oferta-escondida').hidden = true;
   element('quiz-result').hidden = true;
+  element('quiz-loading').hidden = true;
   element('quiz-success').hidden = true;
   const player = new Element();
   player.parentElement = new Element();
@@ -57,7 +59,7 @@ function page(search = '') {
       addEventListener() {},
       head: new Element(),
     },
-    window: { addEventListener() {} },
+    window: { addEventListener() {}, matchMedia: () => ({ matches: reducedMotion }) },
     localStorage: storage,
     sessionStorage: storage,
     location: { search },
@@ -91,6 +93,11 @@ function page(search = '') {
       const options = element('quiz-options').children;
       options[0].emit('click');
       options.at(-1).emit('click'); // A second click must not skip a question.
+      if (index === 7) {
+        assert.equal(element('quiz-section').hidden, true);
+        assert.equal(element('quiz-loading').hidden, false);
+        break;
+      }
       advance(299);
       assert.equal(element('quiz-counter').textContent, `Question ${index + 1} of 8`);
       advance(1);
@@ -107,6 +114,8 @@ test('quiz shows centered status sequence at 0/2/4s and reveals only at 5s', () 
   p.completeQuiz();
   assert.equal(p.element('quiz-panel').hidden, true);
   assert.equal(p.element('quiz-screen').hidden, true);
+  assert.equal(p.element('quiz-section').hidden, true);
+  assert.equal(p.element('quiz-loading').hidden, false);
   assert.equal(p.element('quiz-result').hidden, false);
   assert.equal(p.element('quiz-spinner').hidden, false);
   assert.equal(p.element('quiz-message').textContent, 'Reviewing your answers...');
@@ -130,8 +139,20 @@ test('quiz shows centered status sequence at 0/2/4s and reveals only at 5s', () 
   p.advance(1);
   assert.equal(p.element('oferta-escondida').hidden, false);
   assert.equal(p.element('oferta-escondida').attributes.get('aria-hidden'), 'false');
+  assert.equal(p.element('quiz-loading').hidden, true);
+  assert.equal(p.element('quiz-result').hidden, true);
+  assert.equal(p.element('oferta-escondida').focused, true);
+  assert.equal(p.element('oferta-escondida').scrollOptions.behavior, 'smooth');
   assert.equal(p.element('quiz-result').attributes.get('aria-busy'), 'false');
   assert.ok(p.element('quiz-message').classes.has('quiz-warning'));
+});
+
+test('checkout scroll respects the reduced-motion preference', () => {
+  const p = page('', true);
+  p.completeQuiz();
+  p.advance(5000);
+  assert.equal(p.element('oferta-escondida').hidden, false);
+  assert.equal(p.element('oferta-escondida').scrollOptions.behavior, 'instant');
 });
 
 test('initial quiz is ready immediately and wall time or preview URL cannot reveal the offer', () => {
