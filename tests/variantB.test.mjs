@@ -87,12 +87,12 @@ function page(search = '') {
   }
   function completeQuiz() {
     for (let index = 0; index < 8; index++) {
-      assert.equal(element('quiz-counter').textContent, `Pergunta ${index + 1} de 8`);
+      assert.equal(element('quiz-counter').textContent, `Question ${index + 1} of 8`);
       const options = element('quiz-options').children;
       options[0].emit('click');
       options.at(-1).emit('click'); // A second click must not skip a question.
       advance(299);
-      assert.equal(element('quiz-counter').textContent, `Pergunta ${index + 1} de 8`);
+      assert.equal(element('quiz-counter').textContent, `Question ${index + 1} of 8`);
       advance(1);
     }
   }
@@ -109,22 +109,22 @@ test('quiz shows centered status sequence at 0/2/4s and reveals only at 5s', () 
   assert.equal(p.element('quiz-screen').hidden, true);
   assert.equal(p.element('quiz-result').hidden, false);
   assert.equal(p.element('quiz-spinner').hidden, false);
-  assert.equal(p.element('quiz-message').textContent, 'A analisar as suas respostas...');
+  assert.equal(p.element('quiz-message').textContent, 'Reviewing your answers...');
   assert.equal(p.element('quiz-success').hidden, true);
   p.advance(1999);
   assert.equal(p.element('quiz-spinner').hidden, false);
   p.advance(1);
   assert.equal(p.element('quiz-spinner').hidden, true);
   assert.ok(p.element('quiz-message').classes.has('quiz-warning'));
-  assert.equal(p.element('quiz-message').textContent, '⚠️ Respostas recebidas.');
+  assert.equal(p.element('quiz-message').textContent, '⚠️ Your answers have been received.');
   assert.equal(p.element('oferta-escondida').hidden, true);
   p.advance(1999);
   assert.equal(p.element('quiz-success').hidden, true);
   assert.equal(p.element('oferta-escondida').hidden, true);
   p.advance(1);
   assert.equal(p.element('quiz-success').hidden, false);
-  assert.equal(p.element('quiz-success').textContent, '✅ A sua apresentação está pronta.');
-  assert.equal(p.element('quiz-message').textContent, '⚠️ Respostas recebidas.');
+  assert.equal(p.element('quiz-success').textContent, '✅ Your presentation is ready.');
+  assert.equal(p.element('quiz-message').textContent, '⚠️ Your answers have been received.');
   p.advance(999);
   assert.equal(p.element('oferta-escondida').hidden, true);
   p.advance(1);
@@ -136,7 +136,7 @@ test('quiz shows centered status sequence at 0/2/4s and reveals only at 5s', () 
 
 test('initial quiz is ready immediately and wall time or preview URL cannot reveal the offer', () => {
   const p = page('?showoffer=1');
-  assert.equal(p.element('quiz-counter').textContent, 'Pergunta 1 de 8');
+  assert.equal(p.element('quiz-counter').textContent, 'Question 1 of 8');
   assert.equal(p.element('quiz-options').children.length, 2);
   p.advance(60 * 60 * 1000);
   assert.equal(p.element('oferta-escondida').hidden, true);
