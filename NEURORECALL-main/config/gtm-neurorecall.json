@@ -1,0 +1,63 @@
+{
+  "exportFormatVersion": 2,
+  "containerVersion": {
+    "container": {
+      "publicId": "GTM-MFKJ3937",
+      "usageContext": [
+        "WEB"
+      ]
+    },
+    "tag": [
+      {
+        "tagId": "1",
+        "name": "NeuroRecall - UTMify UTMs",
+        "type": "html",
+        "parameter": [
+          {
+            "type": "TEMPLATE",
+            "key": "html",
+            "value": "<script>\n(function () {\n  var source = 'https://cdn.utmify.com.br/scripts/utms/latest.js';\n  if (document.getElementById('neurorecall-utmify-utms') ||\n      Array.prototype.some.call(document.scripts, function (script) {\n        return script.src.split('?')[0] === source;\n      })) return;\n  var script = document.createElement('script');\n  script.id = 'neurorecall-utmify-utms';\n  script.src = source;\n  script.async = true;\n  script.defer = true;\n  script.setAttribute('data-utmify-prevent-xcod-sck', '');\n  script.setAttribute('data-utmify-prevent-subids', '');\n  (document.head || document.documentElement).appendChild(script);\n})();\n</script>"
+          },
+          {
+            "type": "BOOLEAN",
+            "key": "supportDocumentWrite",
+            "value": "false"
+          }
+        ],
+        "firingTriggerId": [
+          "1"
+        ],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      },
+      {
+        "tagId": "2",
+        "name": "NeuroRecall - UTMify Pixel (Meta + CAPI owner)",
+        "type": "html",
+        "parameter": [
+          {
+            "type": "TEMPLATE",
+            "key": "html",
+            "value": "<script>\n(function () {\n  var source = 'https://cdn.utmify.com.br/scripts/pixel/pixel.js';\n  var pixelId = '6ad2dd007c06e328e8d097f3';\n  if (window.pixelId && window.pixelId !== pixelId) {\n    console.error('NeuroRecall: a different UTMify pixel is already configured.');\n    return;\n  }\n  window.pixelId = pixelId;\n  if (document.getElementById('neurorecall-utmify-pixel') ||\n      Array.prototype.some.call(document.scripts, function (script) {\n        return script.src.split('?')[0] === source;\n      })) return;\n  var script = document.createElement('script');\n  script.id = 'neurorecall-utmify-pixel';\n  script.src = source;\n  script.async = true;\n  script.defer = true;\n  (document.head || document.documentElement).appendChild(script);\n})();\n</script>"
+          },
+          {
+            "type": "BOOLEAN",
+            "key": "supportDocumentWrite",
+            "value": "false"
+          }
+        ],
+        "firingTriggerId": [
+          "1"
+        ],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      }
+    ],
+    "trigger": [
+      {
+        "triggerId": "1",
+        "name": "NeuroRecall - All pages",
+        "type": "PAGEVIEW"
+      }
+    ],
+    "variable": []
+  }
+}
