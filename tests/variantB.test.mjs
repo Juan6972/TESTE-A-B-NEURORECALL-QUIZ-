@@ -106,6 +106,7 @@ test('quiz shows centered status sequence at 0/2/4s and reveals only at 5s', () 
   assert.equal(p.element('oferta-escondida').hidden, true);
   p.completeQuiz();
   assert.equal(p.element('quiz-panel').hidden, true);
+  assert.equal(p.element('quiz-screen').hidden, true);
   assert.equal(p.element('quiz-result').hidden, false);
   assert.equal(p.element('quiz-spinner').hidden, false);
   assert.equal(p.element('quiz-message').textContent, 'A analisar as suas respostas...');
@@ -142,24 +143,27 @@ test('initial quiz is ready immediately and wall time or preview URL cannot reve
   assert.equal(p.element('quiz-panel').hidden, false);
 });
 
-test('VSL reveals exactly at the pitch threshold while keeping the quiz visible', () => {
+test('VSL cannot bypass the eight quiz answers even after the pitch threshold', () => {
   const p = page();
   p.videoTime(2504.99);
   assert.equal(p.element('oferta-escondida').hidden, true);
   p.videoTime(2505);
-  assert.equal(p.element('oferta-escondida').hidden, false);
+  assert.equal(p.element('oferta-escondida').hidden, true);
+  p.videoTime(3600);
+  p.advance(60000);
+  assert.equal(p.element('oferta-escondida').hidden, true);
   assert.equal(p.element('quiz-panel').hidden, false);
 });
 
-test('VSL and quiz loading can reveal concurrently without resetting the result', () => {
+test('VSL cannot reveal early during the five-second loading sequence', () => {
   const p = page();
   p.completeQuiz();
   p.advance(2000);
   const warning = p.element('quiz-message').textContent;
   p.videoTime(2505);
-  assert.equal(p.element('oferta-escondida').hidden, false);
+  assert.equal(p.element('oferta-escondida').hidden, true);
   p.advance(2999);
-  assert.equal(p.element('oferta-escondida').hidden, false);
+  assert.equal(p.element('oferta-escondida').hidden, true);
   p.advance(1);
   assert.equal(p.element('oferta-escondida').hidden, false);
   assert.equal(p.element('quiz-message').textContent, warning);
