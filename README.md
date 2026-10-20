@@ -2,6 +2,8 @@
 
 React + TypeScript landing page built with Vite. Requires Node.js 24 and npm.
 
+Production URLs: Variant A uses `/`; Variant B uses `/quiz`, configured in `vercel.json`. The existing `/variante-b.html` URL also works. The rewrite retains campaign query parameters.
+
 ```sh
 npm ci
 npm run dev -- --host 0.0.0.0
