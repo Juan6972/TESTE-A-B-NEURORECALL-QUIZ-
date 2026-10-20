@@ -21,7 +21,7 @@ test('saves per-video progress only after five seconds', () => {
   saveProgress(123.5, 600);
   assert.equal(readProgress().time, 123.5);
   assert.equal(readProgress().duration, 600);
-  assert(PROGRESS_KEY.endsWith('6ad0c347fb4aed392d40436f'));
+  assert(PROGRESS_KEY.endsWith('6ad7e36dfeb69fec0f8c1bc3'));
 });
 
 test('clears progress in the last five seconds or at the end', () => {
@@ -34,6 +34,17 @@ test('clears progress in the last five seconds or at the end', () => {
   assert.equal(readProgress().time, 594.9);
   clearProgress();
   assert.equal(readProgress(), null);
+});
+
+test('the new VSL does not resume progress from the previous video', () => {
+  const oldKey = 'vsl_progress_6ad0c347fb4aed392d40436f';
+  const previous = JSON.stringify({ time: 2600, duration: 3600, updatedAt: Date.now() });
+  items.set(oldKey, previous);
+  assert.equal(readProgress(), null);
+  saveProgress(30, 3600);
+  assert.equal(readProgress().time, 30);
+  assert.equal(items.get(oldKey), previous);
+  assert.notEqual(PROGRESS_KEY, oldKey);
 });
 
 test('expires after seven days, removes malformed and invalid records', () => {
