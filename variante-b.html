@@ -314,16 +314,17 @@ function saveProgress(time, duration) {
 
 (() => {
   'use strict';
-  const questions = [
-    { question: 'Para quem está a procurar ajuda em relação à memória e clareza mental?', options: ['Para mim mesmo(a)', 'Para um familiar de quem cuido'] },
-    { question: 'Qual destes sinais tem notado com mais frequência ultimamente?', options: ['Entrar numa divisão e esquecer o que ia fazer', 'Perder palavras ou nomes a meio de uma frase', 'Sensação de nevoeiro mental no final do dia', 'Alterações de humor e confusão'] },
-    { question: 'O que já tentou fazer para resolver este problema?', options: ['Nada ainda', 'Suplementos genéricos (ginkgo, ómega-3)', 'Medicamentos receitados', 'Mudanças na rotina'] },
-    { question: 'Qual é o seu maior receio se esta situação continuar a piorar?', options: ['Perder a minha independência e acabar num lar', 'Tornar-me um peso para a minha família', 'Não reconhecer as pessoas que amo', 'Perder a minha própria identidade'] },
-    { question: 'Sabia que as falhas de memória podem ter diferentes causas e merecem avaliação por um profissional de saúde?', options: ['Não fazia ideia', 'Já sabia', 'Quero saber mais sobre isso'] },
-    { question: 'Estaria aberto(a) a conhecer opções de apoio à memória e a discutir a sua segurança com um profissional de saúde?', options: ['Sim, quero conhecer as opções', 'Só se me mostrarem provas científicas', 'Estou curioso(a)'] },
-    { question: 'Estaria disposto(a) a seguir um ritual simples de 5 segundos de manhã durante 90 dias?', options: ['Sim, faria o que fosse preciso', 'Talvez, quero ver como funciona primeiro'] },
-    { question: 'Pode conhecer a apresentação e a oferta. Está num local calmo para assistir?', options: ['Sim, estou pronto', 'Quero ver a solução agora'] },
-  ];
+const questions = [
+  { question: 'Para quem está a procurar ajuda em relação à memória e clareza mental?', options: ['Para mim mesmo(a)', 'Para um familiar de quem cuido'] },
+  { question: 'Qual destes sinais tem notado com mais frequência ultimamente?', options: ['Entrar numa divisão e esquecer o que ia fazer', 'Perder palavras ou nomes a meio de uma frase', 'Sensação de nevoeiro mental no final do dia', 'Alterações de humor e confusão'] },
+  { question: 'O que já tentou fazer para resolver este problema?', options: ['Nada ainda', 'Suplementos genéricos (ginkgo, ómega-3)', 'Medicamentos receitados', 'Mudanças na rotina'] },
+  { question: 'Qual é o seu maior receio se esta situação continuar a piorar?', options: ['Perder a minha independência e acabar num lar', 'Tornar-me um peso para a minha família', 'Não reconhecer as pessoas que amo', 'Perder a minha própria identidade'] },
+  { question: 'Sabia que as falhas de memória não são causadas pela idade, mas sim por uma assassina silenciosa que paralisa a limpeza do seu cérebro?', options: ['Não fazia ideia', 'Sempre suspeitei que a culpa não era da idade', 'Quero saber mais sobre isso'] },
+  { question: 'Estaria aberto(a) a uma solução 100% natural, sem químicos ou efeitos secundários?', options: ['Sim, prefiro opções naturais', 'Só se me mostrarem provas científicas', 'Estou curioso(a)'] },
+  { question: 'Estaria disposto(a) a seguir um ritual simples de 5 segundos de manhã durante 90 dias?', options: ['Sim, faria o que fosse preciso', 'Talvez, quero ver como funciona primeiro'] },
+  { question: 'Preparámos uma apresentação de emergência para o seu caso. Está num local calmo para assistir?', options: ['Sim, estou pronto', 'Quero ver a solução agora'] }
+];
+
   const offer = document.getElementById('oferta-escondida');
   const panel = document.getElementById('quiz-panel');
   const screen = document.getElementById('quiz-screen');
