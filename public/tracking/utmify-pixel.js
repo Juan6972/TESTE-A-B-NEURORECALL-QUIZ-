@@ -1,6 +1,6 @@
 (function () {
   var source = 'https://cdn.utmify.com.br/scripts/pixel/pixel.js';
-  var pixelId = '6ad2dd007c06e328e8d097f3';
+  var pixelId = '6ad77a259755b48053b5e033';
   if (window.pixelId && window.pixelId !== pixelId) {
     console.error('NeuroRecall: a different UTMify pixel is already configured.');
     return;
