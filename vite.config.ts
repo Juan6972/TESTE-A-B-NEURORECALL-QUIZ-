@@ -35,6 +35,10 @@ export default defineConfig({
     minify: 'esbuild',
     cssMinify: true,
     rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        variantB: fileURLToPath(new URL('./variante-b.html', import.meta.url)),
+      },
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],

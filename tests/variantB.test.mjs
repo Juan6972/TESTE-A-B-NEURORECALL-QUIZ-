@@ -1,0 +1,146 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { test } from 'node:test';
+import vm from 'node:vm';
+
+const html = readFileSync(new URL('../variante-b.html', import.meta.url), 'utf8');
+const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+  .map(match => match[1]).find(source => source.includes('const PITCH_SECONDS'));
+assert.ok(script, 'The standalone HTML must include its quiz script');
+
+function page() {
+  class Element {
+    children = [];
+    listeners = new Map();
+    attributes = new Map();
+    hidden = false;
+    textContent = '';
+    dataset = {};
+    classes = new Set();
+    classList = { add: name => this.classes.add(name) };
+    setAttribute(name, value) { this.attributes.set(name, value); }
+    removeAttribute(name) {
+      this.attributes.delete(name);
+      if (name === 'hidden') this.hidden = false;
+    }
+    addEventListener(name, listener) {
+      const listeners = this.listeners.get(name) || [];
+      listeners.push(listener);
+      this.listeners.set(name, listeners);
+    }
+    emit(name, event = {}) { for (const fn of this.listeners.get(name) || []) fn(event); }
+    append(child) { this.children.push(child); }
+    replaceChildren() { this.children = []; }
+    focus() {}
+    querySelectorAll() { return []; }
+  }
+  const elements = new Map();
+  const element = id => {
+    if (!elements.has(id)) elements.set(id, new Element());
+    return elements.get(id);
+  };
+  element('oferta-escondida').hidden = true;
+  element('quiz-result').hidden = true;
+  const player = new Element();
+  player.parentElement = new Element();
+  const timers = new Map();
+  let now = 0;
+  let nextId = 1;
+  const storage = { getItem: () => null, setItem() {}, removeItem() {} };
+  const context = {
+    document: {
+      getElementById: element,
+      createElement: () => new Element(),
+      querySelector: () => player,
+      querySelectorAll: () => [],
+      addEventListener() {},
+      head: new Element(),
+    },
+    window: { addEventListener() {} },
+    localStorage: storage,
+    sessionStorage: storage,
+    location: { search: '' },
+    URL, URLSearchParams,
+    setTimeout(callback, delay) {
+      const id = nextId++;
+      timers.set(id, { callback, at: now + delay });
+      return id;
+    },
+    clearTimeout: id => timers.delete(id),
+    setInterval() { return -1; },
+    clearInterval() {},
+  };
+  context.window.location = context.location;
+  vm.runInNewContext(script, context);
+  function advance(ms) {
+    const target = now + ms;
+    while (true) {
+      const next = [...timers].sort((a, b) => a[1].at - b[1].at)[0];
+      if (!next || next[1].at > target) break;
+      const [id, timer] = next;
+      timers.delete(id);
+      now = timer.at;
+      timer.callback();
+    }
+    now = target;
+  }
+  function completeQuiz() {
+    for (let index = 0; index < 8; index++) {
+      assert.equal(element('quiz-counter').textContent, `Pergunta ${index + 1} de 8`);
+      const options = element('quiz-options').children;
+      options[0].emit('click');
+      options.at(-1).emit('click'); // A second click must not skip a question.
+      advance(299);
+      assert.equal(element('quiz-counter').textContent, `Pergunta ${index + 1} de 8`);
+      advance(1);
+    }
+  }
+  const videoTime = time => player.emit('video:timeupdate', { detail: { time } });
+  return { element, advance, completeQuiz, videoTime };
+}
+
+test('quiz reveals at exactly 5000ms without playing the VSL', () => {
+  const p = page();
+  p.advance(60 * 60 * 1000);
+  assert.equal(p.element('oferta-escondida').hidden, true);
+  p.completeQuiz();
+  assert.equal(p.element('quiz-panel').hidden, true);
+  assert.equal(p.element('quiz-result').hidden, false);
+  assert.equal(p.element('quiz-spinner').hidden, false);
+  p.advance(2999);
+  assert.equal(p.element('quiz-spinner').hidden, false);
+  p.advance(1);
+  assert.equal(p.element('quiz-spinner').hidden, true);
+  assert.ok(p.element('quiz-message').classes.has('quiz-warning'));
+  assert.equal(p.element('oferta-escondida').hidden, true);
+  p.advance(1999);
+  assert.equal(p.element('oferta-escondida').hidden, true);
+  p.advance(1);
+  assert.equal(p.element('oferta-escondida').hidden, false);
+  assert.equal(p.element('oferta-escondida').attributes.get('aria-hidden'), 'false');
+  assert.equal(p.element('quiz-result').attributes.get('aria-busy'), 'false');
+  assert.ok(p.element('quiz-message').classes.has('quiz-warning'));
+});
+
+test('VSL reveals independently at the pitch threshold and never hides again', () => {
+  const p = page();
+  p.videoTime(2504.99);
+  assert.equal(p.element('oferta-escondida').hidden, true);
+  p.videoTime(2505);
+  assert.equal(p.element('oferta-escondida').hidden, false);
+  p.videoTime(0);
+  assert.equal(p.element('oferta-escondida').hidden, false);
+  assert.equal(p.element('quiz-panel').hidden, false);
+});
+
+test('VSL and quiz completion can race without resetting the offer or warning', () => {
+  const p = page();
+  p.completeQuiz();
+  p.advance(3000);
+  const warning = p.element('quiz-message').textContent;
+  p.videoTime(2505);
+  p.advance(2000);
+  assert.equal(p.element('oferta-escondida').hidden, false);
+  assert.equal(p.element('quiz-message').textContent, warning);
+  assert.equal(p.element('quiz-result').attributes.get('aria-busy'), 'false');
+});
