@@ -10,7 +10,7 @@ const OfferSection = lazy(() => import('@/OfferSection'));
 
 const navItems = ['CNN Headlines', 'CNN Shorts', 'TV Shows A-Z', 'CNN 10', 'TV Schedule'];
 
-const PITCH_SECONDS = 2505; // 41:45 on the video clock, not elapsed visit time.
+const PITCH_SECONDS = 2760; // 46:00 on the video clock, not elapsed visit time.
 
 function CnnMark() {
   return <span className="cnn-mark" aria-label="CNN">CNN</span>;
