@@ -21,7 +21,7 @@ test('saves per-video progress only after five seconds', () => {
   saveProgress(123.5, 600);
   assert.equal(readProgress().time, 123.5);
   assert.equal(readProgress().duration, 600);
-  assert(PROGRESS_KEY.endsWith('6ad7e36dfeb69fec0f8c1bc3'));
+  assert(PROGRESS_KEY.endsWith('6ad7e101b1390d33e6d77503'));
 });
 
 test('clears progress in the last five seconds or at the end', () => {
@@ -37,7 +37,7 @@ test('clears progress in the last five seconds or at the end', () => {
 });
 
 test('the new VSL does not resume progress from the previous video', () => {
-  const oldKey = 'vsl_progress_6ad0c347fb4aed392d40436f';
+  const oldKey = 'vsl_progress_6ad7e36dfeb69fec0f8c1bc3';
   const previous = JSON.stringify({ time: 2600, duration: 3600, updatedAt: Date.now() });
   items.set(oldKey, previous);
   assert.equal(readProgress(), null);

@@ -1,4 +1,4 @@
-export const VIDEO_ID = '6ad7e36dfeb69fec0f8c1bc3';
+export const VIDEO_ID = '6ad7e101b1390d33e6d77503';
 export const PROGRESS_KEY = `vsl_progress_${VIDEO_ID}`;
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
