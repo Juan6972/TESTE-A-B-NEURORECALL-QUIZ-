@@ -49,8 +49,8 @@ function App() {
         <section className="watch-section">
           <header className="article-header">
             <div className="article-kicker">REPORT:</div>
-            <h1>The Real Reason Bill Gates Is Investing Millions In Asia: He Discovered The "Sharp Mind Protocol"</h1>
-            <p>Research connected to the University of Tokyo reveals a 13-second homemade ritual that may clear brain fog in days and support short-term memory — without relying on drugs alone.</p>
+            <h1>O "Apagão de Aspen": Como a Mais Famosa Apresentadora de Telejornal Reverteu a Própria Perda de Memória</h1>
+            <p>Após esquecer em que ano vivia durante uma viagem, Katie Couric encontrou a salvação num protocolo caseiro de 13 segundos que limpou o seu nevoeiro mental em dias.</p>
           </header>
           <div className="player vturb-player-frame" role="region" aria-label="VTurb video player">
             <VturbPlayer onProgress={revealOfferAtTime} />
