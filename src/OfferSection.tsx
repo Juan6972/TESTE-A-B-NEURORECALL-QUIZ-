@@ -11,8 +11,8 @@ function ProductImage({ bottles, featured }: { bottles: number; featured: boolea
       <source type="image/webp" srcSet={sources('webp')} sizes={sizes} />
       <img className={`offer-product-image${featured ? ' offer-product-image-featured' : ''}`}
         src={`${base}-512.webp`} srcSet={sources('webp')} sizes={sizes}
-        width={768} height={695} loading="lazy" decoding="async"
-        alt={`Neuro Recall ${bottles} bottle package`} />
+        width={768} height={768} loading="lazy" decoding="async"
+        alt={`Memo Vance Pro ${bottles} bottle package`} />
     </picture>
   );
 }
