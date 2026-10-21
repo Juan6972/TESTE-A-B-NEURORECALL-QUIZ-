@@ -105,7 +105,6 @@
 .quiz-section { max-width: 760px; margin: 32px auto; padding: 24px 18px; border: 1px solid #3b3b40; border-radius: 12px; background: #19191d; color: #f5f5f5; }
 #quiz-section { display: block; visibility: visible; opacity: 1; }
 .quiz-kicker { margin: 0 0 8px; color: #ffcc00; font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
-.quiz-section h2 { margin: 0 0 12px; font-size: clamp(23px,3vw,30px); font-weight: 800; line-height: 1.2; }
 .quiz-intro { margin: 0 0 20px; color: #c4c4c4; font-size: 16px; line-height: 1.5; }
 .quiz-counter { margin: 0 0 10px; color: #dedee5; font-size: 16px; font-weight: 700; }
 .quiz-progress { display: block; width: 100%; height: 8px; margin-bottom: 24px; accent-color: #ffcc00; border: 0; border-radius: 8px; overflow: hidden; background: #3b3b40; }
@@ -120,26 +119,14 @@
 .quiz-option[aria-disabled=true] { cursor: wait; }
 .quiz-option:focus-visible, .offer-button:focus-visible { outline: 3px solid #ffcc00; outline-offset: 4px; }
 .quiz-question:focus-visible, .quiz-result:focus-visible { outline: 2px solid #777; outline-offset: 6px; }
-.quiz-loading { max-width: 760px; margin: 32px auto; padding: 32px 20px; border: 1px solid #35353d; border-radius: 20px; background: radial-gradient(ellipse at top, #202126, #121316 70%); box-shadow: 0 16px 48px rgba(0,0,0,.28); text-align: center; }
-.loading-eyebrow { margin: 0 0 12px; color: #ffcc00; font-size: 13px; font-weight: 800; letter-spacing: 2px; }
-.loading-title { margin: 0; color: #fff; font-size: clamp(25px,4vw,32px); font-weight: 700; line-height: 1.25; }
-.loading-steps { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin: 28px 0; padding: 0; list-style: none; }
-.loading-steps li { display: grid; justify-items: center; gap: 10px; color: #b7b9c1; font-size: 15px; font-weight: 600; }
-.loading-steps li::before { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid #555861; border-radius: 50%; content: attr(data-step); }
-.loading-steps li[aria-current=step] { color: #fff; }
-.loading-steps li[aria-current=step]::before { color: #080808; border-color: #ffcc00; background: #ffcc00; }
-.loading-steps li[data-complete=true] { color: #9de0b5; }
-.loading-steps li[data-complete=true]::before { border-color: #578a69; background: #172c22; }
-.quiz-result { display: grid; align-content: center; gap: 20px; min-height: 200px; width: 100%; max-width: 640px; margin: 0 auto; text-align: center; }
-.quiz-result p { margin: 0; font-size: clamp(20px,3vw,24px); line-height: 1.5; overflow-wrap: anywhere; }
-.quiz-spinner { display: block; width: 56px; height: 56px; margin: 0 auto 8px; border: 4px solid #383840; border-top-color: #ffcc00; border-radius: 50%; animation: quiz-spin .85s linear infinite; }
-.quiz-spinner.is-updating { border-top-color: #f2a56c; border-right-color: #f2a56c; }
-.quiz-result .quiz-warning { padding: 24px 20px; border: 1px solid #71343d; border-radius: 12px; color: #fff; background: #301b20; font-weight: 700; }
-.quiz-result .quiz-success { padding: 24px 20px; border: 1px solid #315f46; border-radius: 12px; color: #fff; background: #172c22; font-weight: 700; }
+.quiz-loading { max-width: 560px; margin: 32px auto; padding: 28px 20px; border: 1px solid #35353d; border-radius: 16px; background: #17171c; text-align: center; }
+.quiz-result { display: grid; align-content: center; gap: 16px; min-height: 110px; text-align: center; }
+.quiz-result p { margin: 0; color: #f5f5f5; font-size: 21px; line-height: 1.5; }
+.quiz-spinner { display: block; width: 40px; height: 40px; margin: 0 auto; border: 3px solid #383840; border-top-color: #ffcc00; border-radius: 50%; animation: quiz-spin .85s linear infinite; }
 .offer-section { scroll-margin-top: 88px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 @keyframes quiz-spin { to { transform: rotate(360deg); } }
-@media (min-width: 781px) { .quiz-section { padding: 32px; margin: 40px auto; } .quiz-loading { padding: 40px 32px; margin: 40px auto; } }
+@media (min-width: 781px) { .quiz-section { padding: 32px; margin: 40px auto; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .quiz-spinner { animation: none; } .quiz-option { transition: none; } }
 
 </style>
@@ -168,8 +155,7 @@
 </div></div></section>
 <section id="quiz-section" class="quiz-section" aria-labelledby="quiz-heading">
 <div id="quiz-screen">
-<p class="quiz-kicker">Memory and mental clarity</p>
-<h2 id="quiz-heading">Answer 8 quick questions</h2>
+<p id="quiz-heading" class="quiz-kicker">Memory and mental clarity</p>
 <p class="quiz-intro">Choose the option that best describes your situation. When you finish, you can view the offer without waiting for the video to end.</p>
 <p id="quiz-counter" class="quiz-counter">Question 1 of 8</p>
 <progress id="quiz-progress" class="quiz-progress" value="0" max="8" aria-label="Questions answered"></progress>
@@ -178,10 +164,8 @@
 <noscript><p>Enable JavaScript to take the quiz and unlock the offer.</p></noscript>
 </section>
 <section id="quiz-loading" class="quiz-loading" aria-labelledby="quiz-loading-title" hidden>
-<p class="loading-eyebrow">NEURORECALL</p>
-<h2 id="quiz-loading-title" class="loading-title">Preparing your next step</h2>
-<ol class="loading-steps" aria-label="Presentation progress"><li id="loading-step-answers" data-step="1">Answers</li><li id="loading-step-preparing" data-step="2">Preparing</li><li id="loading-step-ready" data-step="3">Ready</li></ol>
-<div id="quiz-result" class="quiz-result" tabindex="-1" hidden><span id="quiz-spinner" class="quiz-spinner" aria-hidden="true"></span><p id="quiz-message" role="status" aria-live="polite" aria-atomic="true"></p><p id="quiz-success" class="quiz-success" role="status" aria-live="polite" aria-atomic="true" hidden></p></div>
+<h2 id="quiz-loading-title" class="sr-only">Opening your offer</h2>
+<div id="quiz-result" class="quiz-result" tabindex="-1" hidden><span id="quiz-spinner" class="quiz-spinner" aria-hidden="true"></span><p id="quiz-message" role="status" aria-live="polite" aria-atomic="true"></p></div>
 </section>
 <p id="offer-status" class="sr-only" role="status" aria-live="polite"></p>
 <section id="oferta-escondida" class="offer-section" aria-label="NeuroRecall packages" aria-hidden="true" tabindex="-1" hidden lang="en-US">
@@ -211,9 +195,7 @@
  <div class="payment-methods" aria-label="Accepted payment methods"><span>VISA</span><span>MC</span><span>DISCOVER</span><span>AMEX</span></div>
  </div></article></div></div></section></main></div>
 <script>
-const QUIZ_NOTICE_DELAY_MS = 2000;
-const QUIZ_SUCCESS_DELAY_MS = 4000;
-const QUIZ_REVEAL_DELAY_MS = 5500;
+const QUIZ_REVEAL_DELAY_MS = 800;
 const TRACKING_KEY = "neurorecall_tracking";
 const TRACKING_PARAMS = [
   "utm_source",
@@ -347,15 +329,6 @@ const questions = [
   const screen = document.getElementById('quiz-screen');
   const quiz = document.getElementById('quiz-section');
   const loading = document.getElementById('quiz-loading');
-  const loadingSteps = ['loading-step-answers', 'loading-step-preparing', 'loading-step-ready']
-    .map(id => document.getElementById(id));
-  function setLoadingStep(active) {
-    loadingSteps.forEach((step, index) => {
-      step.setAttribute('data-complete', String(index < active));
-      if (index === active) step.setAttribute('aria-current', 'step');
-      else step.removeAttribute('aria-current');
-    });
-  }
   const title = document.getElementById('quiz-question');
   const choices = document.getElementById('quiz-options');
   const counter = document.getElementById('quiz-counter');
@@ -363,13 +336,13 @@ const questions = [
   const result = document.getElementById('quiz-result');
   const spinner = document.getElementById('quiz-spinner');
   const message = document.getElementById('quiz-message');
-  const success = document.getElementById('quiz-success');
   const player = document.querySelector('vturb-smartplayer');
   let index = 0;
   let locked = false;
   let revealed = false;
   let quizFinished = false;
   let quizOfferReady = false;
+  let imagesPrepared = false;
   const timers = new Set();
   function later(callback, delay) {
     const id = setTimeout(() => { timers.delete(id); callback(); }, delay);
@@ -386,6 +359,14 @@ const questions = [
     offer.scrollIntoView({
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
       block: 'start',
+    });
+  }
+  function prepareOfferImages() {
+    if (imagesPrepared) return;
+    imagesPrepared = true;
+    offer.querySelectorAll('img').forEach(image => {
+      image.loading = 'eager';
+      if (typeof image.decode === 'function') void image.decode().catch(() => {});
     });
   }
   function showQuestion(focus = false) {
@@ -417,6 +398,7 @@ const questions = [
       });
       choices.append(button);
     }
+    if (index === questions.length - 1) prepareOfferImages();
     if (focus) title.focus({ preventScroll: true });
   }
   function finishQuiz() {
@@ -431,23 +413,9 @@ const questions = [
     result.hidden = false;
     result.setAttribute('aria-busy', 'true');
     spinner.hidden = false;
-    setLoadingStep(0);
-    message.textContent = 'We are reviewing your answers...';
+    message.textContent = 'Opening your offer...';
     result.focus({ preventScroll: true });
-    later(() => {
-      setLoadingStep(1);
-      spinner.classList.add('is-updating');
-      message.classList.add('quiz-warning');
-      message.textContent = '⚠️ Your answers have been received. Preparing the next step...';
-      result.setAttribute('aria-busy', 'false');
-    }, QUIZ_NOTICE_DELAY_MS);
-    later(() => {
-      setLoadingStep(2);
-      spinner.hidden = true;
-      success.textContent = '✅ Your presentation is ready. You can explore the available packages next.';
-      success.hidden = false;
-    }, QUIZ_SUCCESS_DELAY_MS);
-    // Unlock only after all eight answers and the complete loading sequence.
+    // A short transition after all eight answers; images are prepared on question 8.
     later(() => {
       quizOfferReady = true;
       result.setAttribute('aria-busy', 'false');
