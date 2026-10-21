@@ -16,6 +16,7 @@ function page(search = '', reducedMotion = false) {
     hidden = false;
     textContent = '';
     dataset = {};
+    style = {};
     classes = new Set();
     classList = { add: name => this.classes.add(name) };
     setAttribute(name, value) { this.attributes.set(name, value); }
@@ -33,6 +34,7 @@ function page(search = '', reducedMotion = false) {
     replaceChildren() { this.children = []; }
     focus() { this.focused = true; }
     scrollIntoView(options) { this.scrollOptions = options; }
+    getBoundingClientRect() { return { height: 420 }; }
     querySelectorAll() { return []; }
   }
   const elements = new Map();
@@ -106,19 +108,25 @@ function page(search = '', reducedMotion = false) {
   return { element, advance, completeQuiz, videoTime };
 }
 
-test('quiz transitions directly to the offer after 800ms', () => {
+test('original 0/2/4/5.5s preparation reveals the offer in place without forced scrolling', () => {
   const p = page();
   p.advance(60 * 60 * 1000);
   assert.equal(p.element('oferta-escondida').hidden, true);
   p.completeQuiz();
-  assert.equal(p.element('quiz-panel').hidden, true);
-  assert.equal(p.element('quiz-screen').hidden, true);
   assert.equal(p.element('quiz-section').hidden, true);
   assert.equal(p.element('quiz-loading').hidden, false);
-  assert.equal(p.element('quiz-result').hidden, false);
-  assert.equal(p.element('quiz-spinner').hidden, false);
-  assert.equal(p.element('quiz-message').textContent, 'Opening your offer...');
-  p.advance(799);
+  assert.equal(p.element('quiz-loading').style.minHeight, '420px');
+  assert.equal(p.element('quiz-message').textContent, 'We are reviewing your answers...');
+  p.advance(1999);
+  assert.equal(p.element('quiz-message').textContent, 'We are reviewing your answers...');
+  p.advance(1);
+  assert.equal(p.element('quiz-message').textContent, '⚠️ Your answers have been received. Preparing the next step...');
+  assert.ok(p.element('quiz-spinner').classes.has('is-updating'));
+  p.advance(2000);
+  assert.equal(p.element('quiz-success').hidden, false);
+  assert.equal(p.element('quiz-spinner').hidden, true);
+  assert.equal(p.element('quiz-success').textContent, '✅ Your presentation is ready. You can explore the available packages next.');
+  p.advance(1499);
   assert.equal(p.element('oferta-escondida').hidden, true);
   p.advance(1);
   assert.equal(p.element('oferta-escondida').hidden, false);
@@ -126,16 +134,16 @@ test('quiz transitions directly to the offer after 800ms', () => {
   assert.equal(p.element('quiz-loading').hidden, true);
   assert.equal(p.element('quiz-result').hidden, true);
   assert.equal(p.element('oferta-escondida').focused, true);
-  assert.equal(p.element('oferta-escondida').scrollOptions.behavior, 'smooth');
-  assert.equal(p.element('quiz-result').attributes.get('aria-busy'), 'false');
+  assert.equal(p.element('oferta-escondida').scrollOptions, undefined);
 });
 
-test('checkout scroll respects the reduced-motion preference', () => {
+test('checkout receives focus without forcing a scroll when reduced motion is enabled', () => {
   const p = page('', true);
   p.completeQuiz();
-  p.advance(800);
+  p.advance(5500);
   assert.equal(p.element('oferta-escondida').hidden, false);
-  assert.equal(p.element('oferta-escondida').scrollOptions.behavior, 'instant');
+  assert.equal(p.element('oferta-escondida').focused, true);
+  assert.equal(p.element('oferta-escondida').scrollOptions, undefined);
 });
 
 test('initial quiz is ready immediately and wall time or preview URL cannot reveal the offer', () => {
@@ -159,12 +167,12 @@ test('VSL cannot bypass the eight quiz answers even after the pitch threshold', 
   assert.equal(p.element('quiz-panel').hidden, false);
 });
 
-test('VSL cannot bypass the short final quiz transition', () => {
+test('VSL cannot bypass the original final quiz transition', () => {
   const p = page();
   p.completeQuiz();
   p.videoTime(2505);
   assert.equal(p.element('oferta-escondida').hidden, true);
-  p.advance(799);
+  p.advance(5499);
   assert.equal(p.element('oferta-escondida').hidden, true);
   p.advance(1);
   assert.equal(p.element('oferta-escondida').hidden, false);
