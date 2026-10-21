@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/a",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/b",
+      "destination": "/variante-b.html"
+    },
+    {
       "source": "/quiz",
       "destination": "/variante-b.html"
     }
