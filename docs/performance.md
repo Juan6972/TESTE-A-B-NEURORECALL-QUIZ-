@@ -1,4 +1,19 @@
-# Performance validation — 2026-10-19
+# Performance validation — 2026-10-22
+
+## Technical update
+
+- Variant A now includes a build-time render of the actual App inside the source `index.html` root. `scripts/prerender.mjs` uses React's server renderer through Vite, with no runtime server. Existing CSS, header/logo, hero text, icons, player location, and offer timing are preserved. The client still mounts normally, so saved video progress does not cause server/client hydration mismatches.
+- Variant B replaces its three inline base64 images with content-hashed static AVIF/WebP sources. URLs remain in `data-src`/`data-srcset` through question 7, and only activate when question 8 appears. Encoding and fetching never block quiz answers or the existing 5.5-second offer reveal. The WebP fallbacks are byte-identical to the previous embedded files.
+- Current built Variant B HTML decreases from about 126 KB to 44 KB (gzip about 77.7 KB to 13.0 KB). These are local build measurements, not public-network or Lighthouse scores.
+- Both variants now use content-hashed image files and one-year immutable caching for `/assets/`. Unversioned compatibility images and favicons use a one-day cache; mutable tracking loaders revalidate. Vercel rewrites are unchanged.
+- Added preconnect and DNS-prefetch hints for all four requested VTurb origins in Variant A, valid SVG/ICO favicons for both pages, and standard repository ignore rules.
+- Removed `lucide-react` from dependencies, retaining its four exact SVG drawings locally with the license. The headphones drawing, dimensions, class names, and colors remain identical.
+
+Controlled browser validation at 375 and 1440 px found pixel-identical before/after header, hero, and offer screenshots for both variants. In Variant A, withholding the React entry still produced the fully styled hero; releasing it preserved geometry and produced no observed layout shifts, including a saved-progress session. In Variant B, no product image requests occurred through question 7, and exactly three WebP requests began on question 8. The 46-minute Variant A gate and Variant B's existing quiz-plus-5.5-second gate passed. Vendor scripts were mocked or blocked during these checks, so this does not verify public-network performance or real tracking receipt.
+
+## Earlier audit — 2026-10-19
+
+The following measurements describe the earlier implementation at the time of that audit.
 
 ## Changes
 

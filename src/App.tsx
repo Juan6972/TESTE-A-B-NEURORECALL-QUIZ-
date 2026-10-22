@@ -4,7 +4,7 @@ import { captureTracking, buildCheckoutUrl } from '@/tracking';
 import {
   Headphones,
   Menu,
-} from 'lucide-react';
+} from '@/Icons';
 
 const OfferSection = lazy(() => import('@/OfferSection'));
 
@@ -21,7 +21,7 @@ function App() {
   const revealOfferAtTime = useCallback((time: number) => {
     if (Number.isFinite(time) && time >= PITCH_SECONDS) setOfferVisible(true);
   }, []);
-  const tracking = useMemo(() => captureTracking(), []);
+  const tracking = useMemo(() => typeof window === 'undefined' ? {} : captureTracking(), []);
 
   const checkoutLinks = useMemo(() => ({
     two: buildCheckoutUrl('https://jvz7.com/c/3640757/448283', tracking),

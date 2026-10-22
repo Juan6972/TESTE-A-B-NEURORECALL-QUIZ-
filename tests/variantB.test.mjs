@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import vm from 'node:vm';
@@ -45,6 +46,26 @@ function page(search = '', reducedMotion = false) {
   element('oferta-escondida').hidden = true;
   element('quiz-result').hidden = true;
   element('quiz-loading').hidden = true;
+  const offerImages = [...html.matchAll(/<img\b[^>]*data-src="([^"]+)"[^>]*>/g)].map(match => {
+    const image = new Element();
+    image.dataset.src = match[1];
+    image.setAttribute('data-src', match[1]);
+    image.loading = 'lazy';
+    image.decodeCalls = 0;
+    image.decode = () => { image.decodeCalls++; return Promise.resolve(); };
+    return image;
+  });
+  const offerSources = [...html.matchAll(/<source\b[^>]*data-srcset="([^"]+)"[^>]*>/g)].map(match => {
+    const source = new Element();
+    source.dataset.srcset = match[1];
+    source.setAttribute('data-srcset', match[1]);
+    return source;
+  });
+  element('oferta-escondida').querySelectorAll = selector => {
+    if (selector === 'source[data-srcset]') return offerSources.filter(source => source.attributes.has('data-srcset'));
+    if (selector === 'img[data-src]') return offerImages.filter(image => image.attributes.has('data-src'));
+    return [];
+  };
   const player = new Element();
   player.parentElement = new Element();
   const timers = new Map();
@@ -105,7 +126,7 @@ function page(search = '', reducedMotion = false) {
     }
   }
   const videoTime = time => player.emit('video:timeupdate', { detail: { time } });
-  return { element, advance, completeQuiz, videoTime };
+  return { element, advance, completeQuiz, videoTime, offerImages, offerSources };
 }
 
 test('original 0/2/4/5.5s preparation reveals the offer in place without forced scrolling', () => {
@@ -177,4 +198,48 @@ test('VSL cannot bypass the original final quiz transition', () => {
   p.advance(1);
   assert.equal(p.element('oferta-escondida').hidden, false);
   assert.equal(p.element('quiz-loading').hidden, true);
+});
+
+
+test('offer assets stay inert through question 7 and start loading only when question 8 appears', () => {
+  const p = page();
+  assert.equal(p.offerImages.length, 3);
+  assert.equal(p.offerSources.length, 6);
+  function notRequested() {
+    for (const image of p.offerImages) assert.equal(image.attributes.has('src'), false);
+    for (const source of p.offerSources) assert.equal(source.attributes.has('srcset'), false);
+  }
+  notRequested();
+  for (let question = 1; question < 7; question++) {
+    p.element('quiz-options').children[0].emit('click');
+    p.advance(300);
+    notRequested();
+  }
+  p.element('quiz-options').children[0].emit('click');
+  p.advance(299);
+  notRequested();
+  p.advance(1);
+  assert.equal(p.element('quiz-counter').textContent, 'Question 8 of 8');
+  for (const source of p.offerSources) assert.equal(source.attributes.get('srcset'), source.dataset.srcset);
+  for (const image of p.offerImages) {
+    assert.equal(image.attributes.get('src'), image.dataset.src);
+    assert.equal(image.loading, 'eager');
+    assert.equal(image.decodeCalls, 1);
+  }
+  assert.equal(p.element('oferta-escondida').hidden, true);
+  p.element('quiz-options').children[0].emit('click');
+  p.advance(5500);
+  assert.equal(p.element('oferta-escondida').hidden, false);
+  for (const image of p.offerImages) assert.equal(image.decodeCalls, 1);
+});
+
+test('standalone offer uses existing content-hashed AVIF and WebP files instead of inline image data', () => {
+  assert.equal(html.includes('data:image/'), false);
+  const paths = [...html.matchAll(/data-src(?:set)?="(\/assets\/[^"]+)"/g)].map(match => match[1]);
+  assert.equal(new Set(paths).size, 6);
+  for (const path of paths) {
+    const bytes = readFileSync(new URL(`../public${path}`, import.meta.url));
+    const hash = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
+    assert.ok(path.endsWith(`-${hash}.avif`) || path.endsWith(`-${hash}.webp`));
+  }
 });

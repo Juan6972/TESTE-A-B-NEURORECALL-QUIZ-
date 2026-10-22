@@ -1,4 +1,4 @@
-import { Play, RotateCcw } from 'lucide-react';
+import { Play, RotateCcw } from '@/Icons';
 import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import { clearProgress, readProgress, saveProgress, VIDEO_ID } from '@/vslProgress';
 

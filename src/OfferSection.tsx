@@ -1,16 +1,18 @@
 import { recordCheckout } from '@/tracking';
+import { productImages } from '@/productImages';
 import './OfferSection.css';
 
-function ProductImage({ bottles, featured }: { bottles: number; featured: boolean }) {
-  const base = `/images/${bottles}_POTES`;
-  const sources = (format: string) => [256, 512, 768].map(width => `${base}-${width}.${format} ${width}w`).join(', ');
+function ProductImage({ bottles, featured }: { bottles: 2 | 3 | 6; featured: boolean }) {
+  const images = productImages[bottles];
+  const sources = (format: 'avif' | 'webp') => ([256, 512, 768] as const)
+    .map(width => `${images[width][format]} ${width}w`).join(', ');
   const sizes = featured ? '250px' : '224px';
   return (
     <picture className="offer-product-picture">
       <source type="image/avif" srcSet={sources('avif')} sizes={sizes} />
       <source type="image/webp" srcSet={sources('webp')} sizes={sizes} />
       <img className={`offer-product-image${featured ? ' offer-product-image-featured' : ''}`}
-        src={`${base}-512.webp`} srcSet={sources('webp')} sizes={sizes}
+        src={images[512].webp} srcSet={sources('webp')} sizes={sizes}
         width={768} height={768} loading="lazy" decoding="async"
         alt={`Memo Vance Pro ${bottles} bottle package`} />
     </picture>
