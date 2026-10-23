@@ -37,7 +37,7 @@
           {
             "type": "TEMPLATE",
             "key": "html",
-            "value": "<script>\n(function () {\n  var source = 'https://cdn.utmify.com.br/scripts/pixel/pixel.js';\n  var pixelId = '6ad77a259755b48053b5e033';\n  if (window.pixelId && window.pixelId !== pixelId) {\n    console.error('NeuroRecall: a different UTMify pixel is already configured.');\n    return;\n  }\n  window.pixelId = pixelId;\n  if (document.getElementById('neurorecall-utmify-pixel') ||\n      Array.prototype.some.call(document.scripts, function (script) {\n        return script.src.split('?')[0] === source;\n      })) return;\n  var script = document.createElement('script');\n  script.id = 'neurorecall-utmify-pixel';\n  script.src = source;\n  script.async = true;\n  script.defer = true;\n  (document.head || document.documentElement).appendChild(script);\n})();\n</script>"
+            "value": "<script>\n(function () {\n  var source = 'https://cdn.utmify.com.br/scripts/pixel/pixel.js';\n  var pixelId = '6adb33cb6e6fa95b44911ac4';\n  if (window.pixelId && window.pixelId !== pixelId) {\n    console.error('NeuroRecall: a different UTMify pixel is already configured.');\n    return;\n  }\n  window.pixelId = pixelId;\n  if (document.getElementById('neurorecall-utmify-pixel') ||\n      Array.prototype.some.call(document.scripts, function (script) {\n        return script.src.split('?')[0] === source;\n      })) return;\n  var script = document.createElement('script');\n  script.id = 'neurorecall-utmify-pixel';\n  script.src = source;\n  script.async = true;\n  script.defer = true;\n  (document.head || document.documentElement).appendChild(script);\n})();\n</script>"
           },
           {
             "type": "BOOLEAN",
