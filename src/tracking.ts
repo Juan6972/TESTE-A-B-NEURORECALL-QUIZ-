@@ -53,8 +53,8 @@ export function recordCheckout(value: number, numItems: number) {
   const now = Date.now();
   if (now - lastCheckoutAt < 1000) return;
   lastCheckoutAt = now;
-  // GTM reporting only. UTMify is the sole Meta/CAPI event sender and creates
-  // its shared eventID; a second fbq call here would bypass that deduplication.
+  // Reporting only: the application does not send Meta browser or CAPI events.
+  // Keep the existing payload shape for any independent GTM analytics tags.
   const target = window as unknown as { dataLayer?: unknown[] };
   target.dataLayer = target.dataLayer || [];
   target.dataLayer.push({

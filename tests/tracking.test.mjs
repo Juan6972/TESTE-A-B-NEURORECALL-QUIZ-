@@ -92,10 +92,10 @@ function browserContext(existing = []) {
   return vm.createContext({ window: {}, document, console });
 }
 
-test('embedded fallback and GTM tags together inject each UTMify SDK only once', () => {
+test('embedded fallback and GTM tags inject only the UTM decorator once', () => {
   const context = browserContext();
   const config = JSON.parse(fs.readFileSync(new URL('../config/gtm-neurorecall.json', import.meta.url), 'utf8'));
-  for (const kind of ['utms', 'pixel']) {
+  for (const kind of ['utms']) {
     const source = fs.readFileSync(new URL(`../public/tracking/utmify-${kind}.js`, import.meta.url), 'utf8');
     vm.runInContext(source, context);
     vm.runInContext(source, context);
@@ -105,9 +105,9 @@ test('embedded fallback and GTM tags together inject each UTMify SDK only once',
     vm.runInContext(html.replace(/^<script>\n/, '').replace(/<\/script>$/, ''), context);
     assert.deepEqual(tag.firingTriggerId, ['1']);
   }
-  assert.equal(context.document.scripts.length, 2);
-  assert.equal(new Set(context.document.scripts.map(script => script.src)).size, 2);
-  assert.equal(context.window.pixelId, '6ae1fd2e509d834688782029');
+  assert.equal(context.document.scripts.length, 1);
+  assert.equal(new Set(context.document.scripts.map(script => script.src)).size, 1);
+  assert.equal(context.window.pixelId, undefined);
   const utms = context.document.scripts.find(script => script.id === 'neurorecall-utmify-utms');
   assert.equal(utms['data-utmify-prevent-subids'], '');
   assert.equal(utms['data-utmify-prevent-xcod-sck'], '');
@@ -115,11 +115,26 @@ test('embedded fallback and GTM tags together inject each UTMify SDK only once',
 
 test('loaders reuse an existing vendor SDK even without our script id', () => {
   for (const [kind, url] of [
-    ['pixel', 'https://cdn.utmify.com.br/scripts/pixel/pixel.js'],
     ['utms', 'https://cdn.utmify.com.br/scripts/utms/latest.js'],
   ]) {
     const context = browserContext([{ src: url }]);
     vm.runInContext(fs.readFileSync(new URL(`../public/tracking/utmify-${kind}.js`, import.meta.url), 'utf8'), context);
     assert.equal(context.document.scripts.length, 1);
   }
+});
+
+// Keep browser tracking disabled in both entry points and future GTM imports.
+test('both variants and GTM import omit the removed Pixel initialization', () => {
+  const config = JSON.parse(fs.readFileSync(new URL('../config/gtm-neurorecall.json', import.meta.url), 'utf8'));
+  const sources = [
+    fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8'),
+    fs.readFileSync(new URL('../variante-b.html', import.meta.url), 'utf8'),
+    JSON.stringify(config),
+  ];
+  for (const source of sources) {
+    assert.doesNotMatch(source, /utmify-pixel|scripts\/pixel\/pixel\.js|window\.pixelId|fbq\s*\(|connect\.facebook\.net|fbevents\.js/);
+    assert.match(source, /utmify-utms|scripts\/utms\/latest\.js/);
+    assert.match(source, /GTM-MFKJ3937/);
+  }
+  assert.equal(fs.existsSync(new URL('../public/tracking/utmify-pixel.js', import.meta.url)), false);
 });
