@@ -1,6 +1,6 @@
 # Tracking ownership and GTM setup
 
-UTMify is the single owner of Meta browser events and CAPI events for both variants. The page loaders and GTM import configure internal UTMify Pixel `6adb33cb6e6fa95b44911ac4`, decoded from the installation snippet supplied on 2026-10-23. The intended Meta destination is `2535113940308323`; that association and its CAPI credentials are managed in the UTMify account and must be verified there. Updating the internal ID does not itself prove receipt in Meta.
+UTMify is the single owner of Meta browser events and CAPI events for both variants. The page loaders and GTM import configure internal UTMify Pixel `6ade433bd5ad48f637021bd2`, decoded from the installation snippet supplied on 2026-10-28. The intended Meta destination is `1434368118267256`; that association and its CAPI credentials are managed in the UTMify account and must be verified there. Updating the internal ID does not itself prove receipt in Meta.
 
 UTMify generates an event ID and sends the same identifier through its browser and server paths. Do not add a separate `fbq('track'...)`, `fbq('trackSingle'...)`, Meta base pixel, automatic-event installation, or manual CAPI call for these same events.
 
