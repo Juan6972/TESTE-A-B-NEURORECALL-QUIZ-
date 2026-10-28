@@ -107,7 +107,7 @@ test('embedded fallback and GTM tags together inject each UTMify SDK only once',
   }
   assert.equal(context.document.scripts.length, 2);
   assert.equal(new Set(context.document.scripts.map(script => script.src)).size, 2);
-  assert.equal(context.window.pixelId, '6ade433bd5ad48f637021bd2');
+  assert.equal(context.window.pixelId, '6ae1fd2e509d834688782029');
   const utms = context.document.scripts.find(script => script.id === 'neurorecall-utmify-utms');
   assert.equal(utms['data-utmify-prevent-subids'], '');
   assert.equal(utms['data-utmify-prevent-xcod-sck'], '');
