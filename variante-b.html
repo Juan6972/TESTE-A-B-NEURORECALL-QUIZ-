@@ -8,6 +8,20 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-MFKJ3937');</script>
     <!-- End Google Tag Manager -->
+    <!-- Meta Pixel Code -->
+    <script id="neurorecall-meta-pixel">
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1585173316267621');
+fbq('track', 'PageView');
+    </script>
+    <!-- End Meta Pixel Code -->
     <meta charset="UTF-8" />
     <meta name="theme-color" content="#080808" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,7 +41,7 @@
       })(window, document, "clarity", "script", "yy52xs2mtt");
     </script>
 
-    <!-- UTM attribution only; no Meta Pixel initialization. -->
+    <!-- UTM attribution; Meta Pixel is installed separately above. -->
     <script>
 (function () {
   var source = 'https://cdn.utmify.com.br/scripts/utms/latest.js';
@@ -127,7 +141,12 @@
 </style>
 </head>
 
-<body><div class="site-shell">
+<body>
+    <!-- Meta Pixel fallback for browsers without JavaScript -->
+    <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=1585173316267621&amp;ev=PageView&amp;noscript=1"
+      alt="" /></noscript>
+<div class="site-shell">
 <header class="site-header"><div class="header-inner">
 <button class="icon-button menu-button" aria-label="Open menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <a class="brand" href="#top" aria-label="CNN Watch home"><span class="cnn-mark" aria-label="CNN">CNN</span><span>Watch</span></a>

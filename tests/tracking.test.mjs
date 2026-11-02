@@ -123,18 +123,50 @@ test('loaders reuse an existing vendor SDK even without our script id', () => {
   }
 });
 
-// Keep browser tracking disabled in both entry points and future GTM imports.
-test('both variants and GTM import omit the removed Pixel initialization', () => {
+test('direct Meta Pixel initializes the requested ID and queues one PageView in each variant', () => {
+  const scripts = [];
+  for (const file of ['index.html', 'variante-b.html']) {
+    const html = fs.readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
+    const [head, body] = html.split('<body>');
+    const matches = [...head.matchAll(/<script id="neurorecall-meta-pixel">([\s\S]*?)<\/script>/g)];
+    assert.equal(matches.length, 1);
+    scripts.push(matches[0][1]);
+    const injected = [];
+    const firstScript = { parentNode: { insertBefore: script => injected.push(script) } };
+    const sandbox = {
+      document: {
+        createElement: () => ({}),
+        getElementsByTagName: () => [firstScript],
+      },
+    };
+    sandbox.window = sandbox;
+    const context = vm.createContext(sandbox);
+    vm.runInContext(matches[0][1], context);
+    assert.equal(injected.length, 1);
+    assert.equal(injected[0].src, 'https://connect.facebook.net/en_US/fbevents.js');
+    assert.equal(injected[0].async, true);
+    assert.deepEqual(Array.from(context.fbq.queue, args => Array.from(args)), [
+      ['init', '1585173316267621'], ['track', 'PageView'],
+    ]);
+    assert.equal(context.pixelId, undefined);
+    assert.equal([...body.matchAll(/facebook\.com\/tr\?id=1585173316267621/g)].length, 1);
+    assert.match(body, /<noscript><img height="1" width="1" style="display:none"[\s\S]*?ev=PageView&amp;noscript=1[\s\S]*?<\/noscript>/);
+    assert.doesNotMatch(head, /<noscript><img/);
+  }
+  assert.equal(scripts[0], scripts[1]);
+});
+
+test('both variants keep UTM attribution without reintroducing the removed UTMify Pixel', () => {
   const config = JSON.parse(fs.readFileSync(new URL('../config/gtm-neurorecall.json', import.meta.url), 'utf8'));
   const sources = [
     fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8'),
     fs.readFileSync(new URL('../variante-b.html', import.meta.url), 'utf8'),
-    JSON.stringify(config),
   ];
   for (const source of sources) {
-    assert.doesNotMatch(source, /utmify-pixel|scripts\/pixel\/pixel\.js|window\.pixelId|fbq\s*\(|connect\.facebook\.net|fbevents\.js/);
+    assert.doesNotMatch(source, /utmify-pixel|scripts\/pixel\/pixel\.js|window\.pixelId/);
     assert.match(source, /utmify-utms|scripts\/utms\/latest\.js/);
     assert.match(source, /GTM-MFKJ3937/);
   }
+  assert.doesNotMatch(JSON.stringify(config), /fbq|pixelId|fbevents|scripts\/pixel\/pixel\.js/);
   assert.equal(fs.existsSync(new URL('../public/tracking/utmify-pixel.js', import.meta.url)), false);
 });
