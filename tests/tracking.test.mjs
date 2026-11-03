@@ -143,7 +143,7 @@ test('both variants load the supplied UTMify Pixel once without a direct Meta in
     assert.equal(existing.document.scripts.length, 1);
     assert.doesNotMatch(html, /fbq\(|fbevents\.js|facebook\.com\/tr\?id=/);
     assert.match(html, /utmify-utms|scripts\/utms\/latest\.js/);
-    assert.match(html, /GTM-MFKJ3937/);
+    assert.doesNotMatch(html, /googletagmanager\.com|GTM-MFKJ3937/);
   }
   assert.equal(sources[0], sources[1]);
 });

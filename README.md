@@ -30,6 +30,6 @@ Product images use static AVIF/WebP files and explicit dimensions. Variant A ret
 python scripts/optimize-images.py
 ```
 
-The page uses system fonts, so it makes no font downloads and needs no `@font-face` loading configuration. Tracking configuration and GTM account notes are documented in [docs/tracking.md](docs/tracking.md).
+The page uses system fonts, so it makes no font downloads and needs no `@font-face` loading configuration. Tracking configuration and notes about the removed GTM integration are documented in [docs/tracking.md](docs/tracking.md).
 
 Performance changes and audit conditions: [docs/performance.md](docs/performance.md).
