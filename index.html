@@ -8,20 +8,23 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-MFKJ3937');</script>
     <!-- End Google Tag Manager -->
-    <!-- Meta Pixel Code -->
-    <script id="neurorecall-meta-pixel">
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '2222600604970989');
-fbq('track', 'PageView');
+    <!-- UTMify Pixel: Meta 2222600604970989 is managed in UTMify. -->
+    <script id="neurorecall-utmify-pixel-loader">
+(function () {
+  var source = 'https://cdn.utmify.com.br/scripts/pixel/pixel.js';
+  window.pixelId = '6ae9e2107d72b21d880aae9f';
+  if (document.getElementById('neurorecall-utmify-pixel') ||
+      Array.prototype.some.call(document.scripts, function (script) {
+        return script.src.split('?')[0] === source;
+      })) return;
+  var script = document.createElement('script');
+  script.id = 'neurorecall-utmify-pixel';
+  script.src = source;
+  script.async = true;
+  script.defer = true;
+  (document.head || document.documentElement).appendChild(script);
+})();
     </script>
-    <!-- End Meta Pixel Code -->
     <meta charset="UTF-8" />
     <meta name="theme-color" content="#080808" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -47,14 +50,10 @@ fbq('track', 'PageView');
       })(window, document, "clarity", "script", "yy52xs2mtt");
     </script>
 
-    <!-- UTM attribution; Meta Pixel is installed separately above. -->
+    <!-- UTM attribution; the UTMify Pixel loader is installed above. -->
     <script id="neurorecall-utmify-utms-loader" src="/tracking/utmify-utms.js" defer></script>
   </head>
   <body>
-    <!-- Meta Pixel fallback for browsers without JavaScript -->
-    <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=2222600604970989&amp;ev=PageView&amp;noscript=1"
-      alt="" /></noscript>
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MFKJ3937" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->

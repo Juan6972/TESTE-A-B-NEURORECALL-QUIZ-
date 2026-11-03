@@ -1,24 +1,9 @@
-# Meta Pixel, UTM attribution and checkout telemetry
+# UTMify Pixel and checkout attribution
 
-Meta Pixel `2222600604970989` is installed directly in the HTML head of both variants as requested on 2026-11-03. It initializes once per document load and sends `PageView` using the supplied base code. Each HTML body also contains the hidden noscript image fallback. React mounting and quiz transitions do not initialize another Pixel.
+Both variants load `https://cdn.utmify.com.br/scripts/pixel/pixel.js` with UTMify ID `6ae9e2107d72b21d880aae9f`. The user confirmed in UTMify that this integration targets Meta Pixel `2222600604970989` on 2026-11-03. The readable loader is equivalent to the supplied encoded snippet and guards against repeated SDK injection.
 
-UTMify's Pixel SDK remains removed. The site does not configure another Meta Pixel or a server-side Conversions API integration. The supplied base code does not implement InitiateCheckout or Purchase.
+The previous direct Meta base code and noscript image are removed. UTMify owns Pixel delivery; the application does not send manual Meta checkout or purchase events. Vendor event behavior and server integration credentials are managed in UTMify, not in this repository. No access token belongs in the public site.
 
-The following remain enabled:
+The UTM URL decorator, affiliate settings, stored attribution, JVZoo checkout URLs, dataLayer begin_checkout messages, GTM, Clarity, and VTurb remain enabled. The GTM export only installs the UTM decorator. Review externally published tags and event rules separately to prevent duplicate events.
 
-- UTMify's `utms/latest.js` URL decorator, with the existing affiliate/sub-ID settings.
-- Capture of campaign UTMs and click identifiers in session storage and passthrough to JVZoo checkout URLs, including the existing `tid` fallback.
-- `begin_checkout` messages in `dataLayer`, with the selected amount and bottle quantity. The legacy `tracking_owner` metadata is retained for compatibility; the checkout handler does not send Meta browser or CAPI events.
-- The existing GTM container, Microsoft Clarity and VTurb player.
-
-## External account settings
-
-This repository does not control tags already published in GTM or existing UTMify/JVZoo server integrations. Pixel installations and event rules in those accounts must be reviewed separately to prevent unwanted or duplicate sends. No dataset, account, history, token or published external tag was changed by this installation.
-
-`config/gtm-neurorecall.json` contains only the UTM decorator tag. Do not install another copy of the Meta base code through GTM while this direct HTML installation is enabled. Use GTM Preview to identify legacy Meta or UTMify Pixel tags and keep unrelated analytics tags.
-
-## Verification
-
-Run `node --test tests/*.test.mjs`, `npm run build`, `npm run lint`, and `npm run typecheck`.
-
-In a fresh browser session, verify that both variants request one Meta SDK and initialize the intended Pixel with one PageView. Check receipt in the Meta account separately. Both variants should retain their existing offer gates, pricing and checkout destinations, with complete campaign names and click IDs in checkout URLs. The application must not request the removed UTMify Pixel loader or send manual checkout/purchase events to Meta. Check any remaining vendor requests against published GTM and account settings.
+Run `node --test tests/*.test.mjs`, `npm run build`, `npm run lint`, and `npm run typecheck`. Tests verify the loader configuration and duplicate guard without executing the remote vendor SDK. Confirm actual PageView and InitiateCheckout receipt separately in Meta Test events, for both variants and all checkout buttons. Existing rules on the old Meta Pixel do not transfer automatically.
