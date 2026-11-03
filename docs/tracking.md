@@ -1,6 +1,6 @@
 # Meta Pixel, UTM attribution and checkout telemetry
 
-Meta Pixel `1585173316267621` is installed directly in the HTML head of both variants as requested on 2026-11-02. It initializes once per document load and sends `PageView` using the supplied base code. Each HTML body also contains the hidden noscript image fallback. React mounting and quiz transitions do not initialize another Pixel.
+Meta Pixel `2222600604970989` is installed directly in the HTML head of both variants as requested on 2026-11-03. It initializes once per document load and sends `PageView` using the supplied base code. Each HTML body also contains the hidden noscript image fallback. React mounting and quiz transitions do not initialize another Pixel.
 
 UTMify's Pixel SDK remains removed. The site does not configure another Meta Pixel or a server-side Conversions API integration. The supplied base code does not implement InitiateCheckout or Purchase.
 

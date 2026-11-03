@@ -146,10 +146,10 @@ test('direct Meta Pixel initializes the requested ID and queues one PageView in 
     assert.equal(injected[0].src, 'https://connect.facebook.net/en_US/fbevents.js');
     assert.equal(injected[0].async, true);
     assert.deepEqual(Array.from(context.fbq.queue, args => Array.from(args)), [
-      ['init', '1585173316267621'], ['track', 'PageView'],
+      ['init', '2222600604970989'], ['track', 'PageView'],
     ]);
     assert.equal(context.pixelId, undefined);
-    assert.equal([...body.matchAll(/facebook\.com\/tr\?id=1585173316267621/g)].length, 1);
+    assert.equal([...body.matchAll(/facebook\.com\/tr\?id=2222600604970989/g)].length, 1);
     assert.match(body, /<noscript><img height="1" width="1" style="display:none"[\s\S]*?ev=PageView&amp;noscript=1[\s\S]*?<\/noscript>/);
     assert.doesNotMatch(head, /<noscript><img/);
   }
