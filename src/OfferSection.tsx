@@ -30,8 +30,8 @@ function PaymentMethods() {
 export default function OfferSection({ checkoutLinks }: { checkoutLinks: { two: string; six: string; three: string } }) {
   return (
           <div className="offer-inner">
-            <div className="offer-cta">YES! I want to restore my memory now — choose your package below</div>
-            <div className="offer-grid">
+            <a className="offer-cta" href="#offer-packages">YES! I want to restore my memory now — choose your package below</a>
+            <div className="offer-grid" id="offer-packages" tabIndex={-1}>
               <article className="offer-card">
                 <div className="offer-card-content">
                   <span className="offer-eyebrow">2 BOTTLES</span>

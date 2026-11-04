@@ -1,6 +1,7 @@
 .offer-inner { max-width: 1180px; margin: 0 auto; padding: 24px 32px 56px; }
-.offer-cta { max-width: 980px; margin: 0 auto 36px; padding: 20px 28px; border: 1px solid #e0b400; border-radius: 12px; color: #090909; background: #ffcc00; font-size: clamp(20px, 3vw, 30px); font-weight: 900; line-height: 1.18; text-align: center; animation: offer-cta-pulse 2.8s ease-in-out infinite; }
-.offer-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: 22px; }
+.offer-cta { display: block; cursor: pointer; max-width: 980px; margin: 0 auto 36px; padding: 20px 28px; border: 1px solid #e0b400; border-radius: 12px; color: #090909; background: #ffcc00; font-size: clamp(20px, 3vw, 30px); font-weight: 900; line-height: 1.18; text-align: center; animation: offer-cta-pulse 2.8s ease-in-out infinite; }
+.offer-cta:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.offer-grid { scroll-margin-top: 84px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: 22px; }
 .offer-card { min-height: 438px; overflow: hidden; border: 1px solid #2e78b4; border-radius: 16px; color: #f4f7fa; background: #202226; box-shadow: 0 14px 28px rgba(0, 0, 0, .24); }
 .offer-card-featured { min-height: 486px; border: 2px solid #258bc2; background: #1b3038; box-shadow: 0 18px 34px rgba(0, 0, 0, .32); }
 .offer-badge { padding: 13px 18px; color: #fff; background: #075aa0; font-size: 15px; font-weight: 900; letter-spacing: 1.4px; text-align: center; }
