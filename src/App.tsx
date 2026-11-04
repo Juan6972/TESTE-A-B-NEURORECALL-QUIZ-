@@ -11,15 +11,13 @@ const OfferSection = lazy(() => import('@/OfferSection'));
 const navItems = ['CNN Headlines', 'CNN Shorts', 'TV Shows A-Z', 'CNN 10', 'TV Schedule'];
 
 const PITCH_SECONDS = 2760; // 46:00 on the video clock, not elapsed visit time.
-// Temporary: expose the offer immediately while testing Meta checkout events.
-const SHOW_OFFER_FOR_CHECKOUT_TEST = true;
 
 function CnnMark() {
   return <span className="cnn-mark" aria-label="CNN">CNN</span>;
 }
 
 function App() {
-  const [offerVisible, setOfferVisible] = useState(SHOW_OFFER_FOR_CHECKOUT_TEST);
+  const [offerVisible, setOfferVisible] = useState(false);
   const revealOfferAtTime = useCallback((time: number) => {
     if (Number.isFinite(time) && time >= PITCH_SECONDS) setOfferVisible(true);
   }, []);
