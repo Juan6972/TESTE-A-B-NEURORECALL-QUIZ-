@@ -19,18 +19,19 @@ test('preserves complete campaign names and long click IDs before UTMify loads',
   window.location.search = '?' + new URLSearchParams(values);
   const tracking = captureTracking();
   assert.deepEqual(tracking, values);
-  const result = new URL(buildCheckoutUrl('https://jvz9.com/c/3640757/446317', tracking));
+  const result = new URL(buildCheckoutUrl('https://www.jvzoo.com/b/117515/446317/99?aid=3640757', tracking));
   for (const [key, value] of Object.entries(values)) assert.equal(result.searchParams.get(key), value);
-  assert.equal(result.origin, 'https://jvz9.com');
-  assert.equal(result.pathname, '/c/3640757/446317');
+  assert.equal(result.origin, 'https://www.jvzoo.com');
+  assert.equal(result.searchParams.get('aid'), '3640757');
+  assert.equal(result.pathname, '/b/117515/446317/99');
   assert.equal(result.searchParams.get('tid'), 'USMemory-Q42026AB');
   window.location.search = '';
   assert.deepEqual(captureTracking(), values);
 });
 
 test('preserves existing affiliate parameters and tid', () => {
-  const result = new URL(buildCheckoutUrl('https://jvz9.com/c/3640757/446321?tid=original&utm_source=original', { utm_source: 'new', utm_medium: 'paid' }));
-  assert.equal(result.pathname, '/c/3640757/446321');
+  const result = new URL(buildCheckoutUrl('https://www.jvzoo.com/b/117515/446321/99?aid=3640757&tid=original&utm_source=original', { utm_source: 'new', utm_medium: 'paid' }));
+  assert.equal(result.pathname, '/b/117515/446321/99');
   assert.equal(result.searchParams.get('tid'), 'original');
   assert.equal(result.searchParams.get('utm_source'), 'original');
   assert.equal(result.searchParams.get('utm_medium'), 'paid');
@@ -38,11 +39,12 @@ test('preserves existing affiliate parameters and tid', () => {
 
 test('preserves affiliate and product paths for all three new checkout links', () => {
   for (const product of ['446317', '446319', '446321']) {
-    const result = new URL(buildCheckoutUrl(`https://jvz9.com/c/3640757/${product}`, {
+    const result = new URL(buildCheckoutUrl(`https://www.jvzoo.com/b/117515/${product}/99?aid=3640757`, {
       utm_campaign: 'Memory US / A+B', utm_content: 'variant_b', fbclid: 'click-id-123',
     }));
-    assert.equal(result.origin, 'https://jvz9.com');
-    assert.equal(result.pathname, `/c/3640757/${product}`);
+    assert.equal(result.origin, 'https://www.jvzoo.com');
+    assert.equal(result.searchParams.get('aid'), '3640757');
+    assert.equal(result.pathname, `/b/117515/${product}/99`);
     assert.equal(result.searchParams.get('utm_campaign'), 'Memory US / A+B');
     assert.equal(result.searchParams.get('utm_content'), 'variant_b');
     assert.equal(result.searchParams.get('fbclid'), 'click-id-123');

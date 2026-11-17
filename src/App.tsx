@@ -24,9 +24,9 @@ function App() {
   const tracking = useMemo(() => typeof window === 'undefined' ? {} : captureTracking(), []);
 
   const checkoutLinks = useMemo(() => ({
-    two: buildCheckoutUrl('https://jvz9.com/c/3640757/446317', tracking),
-    six: buildCheckoutUrl('https://jvz9.com/c/3640757/446321', tracking),
-    three: buildCheckoutUrl('https://jvz9.com/c/3640757/446319', tracking),
+    two: buildCheckoutUrl('https://www.jvzoo.com/b/117515/446317/99?aid=3640757', tracking),
+    six: buildCheckoutUrl('https://www.jvzoo.com/b/117515/446321/99?aid=3640757', tracking),
+    three: buildCheckoutUrl('https://www.jvzoo.com/b/117515/446319/99?aid=3640757', tracking),
   }), [tracking]);
 
   return (
